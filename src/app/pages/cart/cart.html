@@ -1,0 +1,54 @@
+<div class="p-6">
+
+  <h2 class="text-xl font-bold mb-4">Your Cart</h2>
+
+ <div *ngFor="let item of items; let i = index"
+     class="bg-white rounded-xl shadow p-4 mb-4">
+
+  <div class="flex justify-between items-start">
+    <div>
+      <h3 class="font-semibold">{{ item.name }}</h3>
+      <p class="text-xs text-gray-500">
+        <span *ngFor="let addon of item.addons">
+          {{ addon.name }}
+        </span>
+      </p>
+    </div>
+
+    <button
+      (click)="remove(i)"
+      class="text-red-500 text-sm"
+    >
+      Remove
+    </button>
+  </div>
+
+  <div class="flex items-center justify-between mt-4">
+    <div class="flex items-center gap-3">
+      <button (click)="decrease(i)" class="px-3 py-1 border rounded">−</button>
+      <span>{{ item.quantity }}</span>
+      <button (click)="increase(i)" class="px-3 py-1 border rounded">+</button>
+    </div>
+
+    <p class="font-bold">
+      ₹{{ item.totalPrice * item.quantity }}
+    </p>
+  </div>
+</div>
+
+
+  <div *ngIf="items.length">
+    <hr class="my-4" />
+    <p class="font-bold text-right">
+      Total: ₹{{ getGrandTotal() }}
+    </p>
+
+    <button
+      routerLink="/checkout"
+      class="mt-4 w-full bg-green-600 text-white py-2 rounded-lg"
+    >
+      Proceed to Checkout
+    </button>
+  </div>
+
+</div>

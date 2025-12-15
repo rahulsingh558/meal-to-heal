@@ -1,0 +1,51 @@
+<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+
+  <div
+    *ngFor="let food of foods"
+    class="bg-white rounded-2xl shadow hover:shadow-lg transition p-5"
+  >
+
+    <h3 class="text-lg font-semibold mb-1">
+      {{ food.name }}
+    </h3>
+
+    <p class="text-sm text-gray-500 mb-3">
+      Healthy • Fresh • Protein-rich
+    </p>
+
+    <p class="text-green-600 font-bold mb-4">
+      ₹{{ food.basePrice }}
+    </p>
+
+    <div class="mb-4">
+      <p class="text-sm font-medium mb-2">Add-ons</p>
+
+      <label
+        *ngFor="let addon of food.addons"
+        class="flex items-center gap-2 text-sm mb-1 cursor-pointer"
+      >
+        <input
+          type="checkbox"
+          (change)="toggleAddon(food.id, addon)"
+          class="accent-green-600"
+        />
+        {{ addon.name }} (+₹{{ addon.price }})
+      </label>
+    </div>
+
+    <div class="flex justify-between items-center">
+      <p class="font-bold">
+        Total ₹{{ getTotalPrice(food) }}
+      </p>
+
+      <button
+        (click)="addToCart(food)"
+        class="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700"
+      >
+        Add
+      </button>
+    </div>
+
+  </div>
+
+</div>
