@@ -1,1 +1,231 @@
-<p>home works!</p>
+<!-- HERO SECTION -->
+<section class="bg-gradient-to-br from-green-50 to-green-100 py-20">
+  <div
+    class="max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-12 items-center
+           animate-on-scroll animate-hidden"
+  >
+    <!-- TEXT -->
+    <div>
+      <h1 class="text-4xl md:text-5xl font-bold text-green-800 leading-tight">
+        Healthy Eating,<br />Delivered to Your Door
+      </h1>
+
+      <p class="mt-4 text-gray-600 text-lg">
+        Fresh sprouts, nutritious meals, and guilt-free indulgence.
+        Bangalore’s favorite healthy food delivery service.
+      </p>
+
+      <div class="mt-6 flex gap-4">
+        <a
+          routerLink="/menu"
+          class="bg-green-600 text-white px-6 py-3 rounded-xl font-medium
+                 hover:bg-green-700 transition"
+        >
+          Order Now
+        </a>
+
+        <a
+          routerLink="/menu"
+          class="border border-green-600 text-green-700 px-6 py-3 rounded-xl
+                 font-medium hover:bg-green-50 transition"
+        >
+          View Menu
+        </a>
+      </div>
+    </div>
+
+    <!-- IMAGE -->
+    <div>
+      <img
+        src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=900&q=80"
+        alt="Healthy Food"
+        class="rounded-2xl shadow-lg"
+      />
+    </div>
+  </div>
+</section>
+
+<!-- SPECIALITIES -->
+<section class="py-20 bg-white">
+  <div class="max-w-6xl mx-auto px-4">
+    <h2
+      class="text-3xl font-bold text-center text-green-700 mb-12
+             animate-on-scroll animate-hidden"
+    >
+      Our Specialities
+    </h2>
+
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="bg-green-50 rounded-2xl p-6 shadow hover:shadow-xl transition
+                  animate-on-scroll animate-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1570913199992-91d07c140e7a?auto=format&fit=crop&w=800&q=80"
+          class="rounded-xl mb-4"
+        />
+        <h3 class="text-xl font-semibold text-green-700">Fresh Sprouts</h3>
+        <p class="text-gray-600 mt-2 text-sm">
+          Nutrient-packed sprouts rich in protein and antioxidants.
+        </p>
+      </div>
+
+      <div class="bg-green-50 rounded-2xl p-6 shadow hover:shadow-xl transition
+                  animate-on-scroll animate-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1563379091339-03246963d9d6?auto=format&fit=crop&w=800&q=80"
+          class="rounded-xl mb-4"
+        />
+        <h3 class="text-xl font-semibold text-green-700">Corn Paneer Bowls</h3>
+        <p class="text-gray-600 mt-2 text-sm">
+          High-protein bowls with fresh paneer and sweet corn.
+        </p>
+      </div>
+
+      <div class="bg-green-50 rounded-2xl p-6 shadow hover:shadow-xl transition
+                  animate-on-scroll animate-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1603064752734-4c48eff53d05?auto=format&fit=crop&w=800&q=80"
+          class="rounded-xl mb-4"
+        />
+        <h3 class="text-xl font-semibold text-green-700">Air Fried Specials</h3>
+        <p class="text-gray-600 mt-2 text-sm">
+          Guilt-free air fried paneer & chicken (coming soon).
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED MENU -->
+<section class="py-20 bg-green-50">
+  <div class="max-w-6xl mx-auto px-4">
+    <h2
+      class="text-3xl font-bold text-center text-green-700 mb-12
+             animate-on-scroll animate-hidden"
+    >
+      Our Healthy Menu
+    </h2>
+
+    <div class="grid md:grid-cols-3 gap-8">
+
+      <!-- ITEM 1 -->
+      <div class="bg-white rounded-2xl shadow p-4 animate-on-scroll animate-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1540420828642-fca2c5c18abe?auto=format&fit=crop&w=800&q=80"
+          class="rounded-xl mb-4"
+        />
+        <h3 class="font-semibold text-green-700">Classic Sprouts Bowl</h3>
+        <p class="text-sm text-gray-600 mt-1">
+          Fresh moong sprouts with veggies and lemon dressing.
+        </p>
+        <div class="mt-4 flex justify-between items-center">
+          <span class="font-bold text-green-700">₹99</span>
+          <button
+            (click)="addToCartFromHome({
+              foodId: 1,
+              name: 'Classic Sprouts Bowl',
+              basePrice: 99
+            })"
+            class="px-4 py-2 border rounded-lg text-green-600 hover:bg-green-50"
+          >
+            Add
+          </button>
+        </div>
+      </div>
+
+      <!-- ITEM 2 -->
+      <div class="bg-white rounded-2xl shadow p-4 animate-on-scroll animate-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80"
+          class="rounded-xl mb-4"
+        />
+        <h3 class="font-semibold text-green-700">Corn Paneer Mix</h3>
+        <p class="text-sm text-gray-600 mt-1">
+          Sweet corn with paneer cubes and seasoning.
+        </p>
+        <div class="mt-4 flex justify-between items-center">
+          <span class="font-bold text-green-700">₹149</span>
+          <button
+            (click)="addToCartFromHome({
+              foodId: 2,
+              name: 'Corn Paneer Mix',
+              basePrice: 149
+            })"
+            class="px-4 py-2 border rounded-lg text-green-600 hover:bg-green-50"
+          >
+            Add
+          </button>
+        </div>
+      </div>
+
+      <!-- ITEM 3 -->
+      <div class="bg-white rounded-2xl shadow p-4 opacity-70
+                  animate-on-scroll animate-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1598214886806-c87b84b7078b?auto=format&fit=crop&w=800&q=80"
+          class="rounded-xl mb-4"
+        />
+        <h3 class="font-semibold text-green-700">Protein Power Bowl</h3>
+        <p class="text-sm text-gray-600 mt-1">
+          Mixed sprouts with quinoa & avocado.
+        </p>
+        <div class="mt-4 flex justify-between items-center">
+          <span class="font-bold text-green-700">₹179</span>
+          <span class="text-sm text-gray-500">Coming Soon</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="py-20 bg-green-700 text-white animate-on-scroll animate-hidden">
+  <div
+    class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row
+           items-center justify-between gap-6"
+  >
+    <div>
+      <h2 class="text-3xl font-bold">Ready to Eat Healthy?</h2>
+      <p class="mt-2 text-green-100">
+        Get 20% off on your first order — use code <b>HEALTHY20</b>
+      </p>
+    </div>
+
+    <a
+      routerLink="/menu"
+      class="bg-white text-green-700 px-8 py-3 rounded-xl font-semibold
+             hover:bg-green-100 transition inline-block"
+    >
+      Order Now
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="bg-gray-900 text-gray-300 py-12">
+  <div class="max-w-6xl mx-auto px-4 grid md:grid-cols-3 gap-8">
+    <div>
+      <h3 class="text-green-500 font-bold text-lg">Meal to Heal</h3>
+      <p class="text-sm mt-2">
+        Healthy food delivered fresh across Bangalore.
+      </p>
+    </div>
+
+    <div>
+      <h4 class="font-semibold mb-2">Contact</h4>
+      <p class="text-sm">📍 Bangalore</p>
+      <p class="text-sm">📞 +91 98765 43210</p>
+    </div>
+
+    <div>
+      <h4 class="font-semibold mb-2">Delivery Areas</h4>
+      <p class="text-sm">
+        Koramangala • Indiranagar • HSR • Whitefield
+      </p>
+    </div>
+  </div>
+
+  <p class="text-center text-xs mt-8 text-gray-500">
+    © 2024 Meal to Heal. All rights reserved.
+  </p>
+</footer>
