@@ -1,16 +1,57 @@
-<header class="sticky top-0 z-50 bg-white shadow">
-  <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-    <h1 class="text-xl font-bold text-green-600">
+<!-- HEADER -->
+<header class="border-b bg-white sticky top-0 z-50">
+  <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+    <a
+      routerLink="/"
+      (click)="scrollToTop()"
+      class="text-green-600 font-bold text-lg hover:text-green-700 transition"
+    >
       Meal to Heal
-    </h1>
+    </a>
 
-    <nav class="flex gap-4 text-sm font-medium">
+    <nav class="flex gap-6 text-sm font-medium">
       <a routerLink="/menu" class="hover:text-green-600">Menu</a>
       <a routerLink="/cart" class="hover:text-green-600">Cart</a>
     </nav>
   </div>
 </header>
 
-<main class="max-w-6xl mx-auto px-4 py-6">
+<!-- PAGE CONTENT -->
+<main class="min-h-[calc(100vh-64px-280px)]">
   <router-outlet></router-outlet>
 </main>
+
+<!-- FOOTER (GLOBAL) -->
+<footer class="bg-gray-900 text-gray-300 py-12">
+  <div class="max-w-6xl mx-auto px-4 grid md:grid-cols-3 gap-8">
+    <div>
+      <h3 class="text-green-500 font-bold text-lg">Meal to Heal</h3>
+      <p class="text-sm mt-2">
+        Healthy food delivered fresh across Bangalore.
+      </p>
+    </div>
+
+    <div>
+      <h4 class="font-semibold mb-2">Contact</h4>
+      <p class="text-sm">📍 Bangalore</p>
+      <p class="text-sm">📞 +91 98765 43210</p>
+    </div>
+
+    <div>
+      <h4 class="font-semibold mb-2">Delivery Areas</h4>
+      <p class="text-sm">
+        Koramangala • Indiranagar • HSR • Whitefield
+      </p>
+    </div>
+  </div>
+
+  <p class="text-center text-xs mt-8 text-gray-500">
+    © 2024 Meal to Heal. All rights reserved.
+  </p>
+</footer>
+
+
+
+
+
+
