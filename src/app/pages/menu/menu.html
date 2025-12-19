@@ -1,67 +1,209 @@
 <div class="min-h-screen bg-green-50 py-10">
   <div class="max-w-6xl mx-auto px-4">
 
-    <h2 class="text-2xl font-bold text-green-700 mb-8">
+    <!-- TITLE -->
+    <h2 class="text-3xl font-bold text-green-700 mb-6 text-center">
       Our Healthy Menu
     </h2>
 
+    <!-- FILTER SWITCHES -->
+    <div class="flex justify-center gap-6 mb-8">
+
+      <!-- ALL -->
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input type="radio" name="foodType" class="hidden"
+               (change)="selectedType = 'all'">
+        <span class="w-10 h-5 rounded-full bg-gray-300 relative transition"
+              [class.bg-green-700]="selectedType === 'all'">
+          <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition"
+                [class.translate-x-5]="selectedType === 'all'"></span>
+        </span>
+        <span class="text-sm font-medium">All</span>
+      </label>
+
+      <!-- VEG -->
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input type="radio" name="foodType" class="hidden"
+               (change)="selectedType = 'veg'">
+        <span class="w-10 h-5 rounded-full bg-gray-300 relative transition"
+              [class.bg-green-600]="selectedType === 'veg'">
+          <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition"
+                [class.translate-x-5]="selectedType === 'veg'"></span>
+        </span>
+        <span class="text-sm font-medium">Veg</span>
+      </label>
+
+      <!-- EGG -->
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input type="radio" name="foodType" class="hidden"
+               (change)="selectedType = 'egg'">
+        <span class="w-10 h-5 rounded-full bg-gray-300 relative transition"
+              [class.bg-yellow-500]="selectedType === 'egg'">
+          <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition"
+                [class.translate-x-5]="selectedType === 'egg'"></span>
+        </span>
+        <span class="text-sm font-medium">Egg</span>
+      </label>
+
+      <!-- NON-VEG -->
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input type="radio" name="foodType" class="hidden"
+               (change)="selectedType = 'nonveg'">
+        <span class="w-10 h-5 rounded-full bg-gray-300 relative transition"
+              [class.bg-red-600]="selectedType === 'nonveg'">
+          <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition"
+                [class.translate-x-5]="selectedType === 'nonveg'"></span>
+        </span>
+        <span class="text-sm font-medium">Non-Veg</span>
+      </label>
+
+    </div>
+
+    <!-- MENU GRID -->
     <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 
-      <div
-        *ngFor="let food of foods"
-        class="bg-white rounded-2xl shadow hover:shadow-lg transition p-5"
-      >
-        <!-- HEADER -->
-        <div class="mb-3">
-          <h3 class="text-lg font-semibold">
-            {{ food.name }}
-          </h3>
+      <div *ngFor="let food of filteredFoods"
+           class="bg-white rounded-2xl shadow hover:shadow-lg transition
+                  flex flex-col overflow-hidden">
 
-          <p class="text-sm text-gray-500">
-            Healthy • Fresh • Protein-rich
+        <!-- IMAGE -->
+        <img
+          [src]="food.image"
+          [alt]="food.name"
+          class="h-48 w-full object-cover"
+        />
+
+        <!-- CONTENT -->
+        <div class="p-5 flex flex-col flex-1">
+
+          <!-- NAME + WISHLIST -->
+          <div class="mb-2 flex justify-between items-start gap-2">
+            <div>
+              <h3 class="text-lg font-semibold">
+                {{ food.name }}
+              </h3>
+              <p class="text-sm text-gray-500">
+                Healthy • Fresh • Protein-rich
+              </p>
+            </div>
+
+            <!-- WISHLIST -->
+            <button
+              (click)="toggleWishlist(food)"
+              class="cursor-pointer mt-1"
+              aria-label="Add to wishlist">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                class="w-6 h-6 transition"
+                [class.text-red-500]="isWishlisted(food.id)"
+                [class.text-gray-300]="!isWishlisted(food.id)">
+                <path
+                  d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
+                     2 5.42 4.42 3 7.5 3
+                     9.24 3 10.91 3.81 12 5.08
+                     13.09 3.81 14.76 3 16.5 3
+                     19.58 3 22 5.42 22 8.5
+                     22 12.28 18.6 15.36 13.45 20.04
+                     L12 21.35z"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- PRICE -->
+          <p class="text-green-700 font-bold text-lg mb-4">
+            ₹{{ food.basePrice }}
           </p>
-        </div>
 
-        <!-- PRICE -->
-        <p class="text-green-700 font-bold text-lg mb-4">
-          ₹{{ food.basePrice }}
-        </p>
+          <!-- FOOTER -->
+          <div class="flex justify-between items-center mt-auto">
+            <span class="text-sm text-gray-500">Customizable</span>
 
-        <!-- ADDONS -->
-        <div class="mb-4" *ngIf="food.addons.length">
-          <p class="text-sm font-medium mb-2">
-            Add-ons
-          </p>
+            <button
+              (click)="openAddonPopup(food)"
+              class="bg-green-600 text-white px-4 py-2 rounded-lg
+                     hover:bg-green-700 transition cursor-pointer">
+              Add to Cart
+            </button>
+          </div>
 
-          <label
-            *ngFor="let addon of food.addons"
-            class="flex items-center gap-2 text-sm mb-1 cursor-pointer"
-          >
-            <input
-              type="checkbox"
-              (change)="toggleAddon(food.id, addon)"
-              class="accent-green-600"
-            />
-            {{ addon.name }} (+₹{{ addon.price }})
-          </label>
-        </div>
-
-        <!-- FOOTER -->
-        <div class="flex justify-between items-center mt-4">
-          <p class="font-bold">
-            Total ₹{{ getTotalPrice(food) }}
-          </p>
-
-          <button
-            (click)="addToCart(food)"
-            class="bg-green-600 text-white px-4 py-2 rounded-lg
-                   hover:bg-green-700 transition"
-          >
-            Add
-          </button>
         </div>
       </div>
 
     </div>
+  </div>
+</div>
+
+<!-- ADDON POPUP MODAL -->
+<div *ngIf="showAddonModal"
+     class="fixed inset-0 z-50 flex items-center justify-center">
+
+  <!-- BACKDROP -->
+  <div
+    class="absolute inset-0 bg-black/50"
+    (click)="closeAddonPopup()">
+  </div>
+
+  <!-- MODAL -->
+  <div
+    class="relative bg-white rounded-2xl w-full max-w-md p-6
+           animate-[modalFadeIn_0.25s_ease-out]">
+
+    <!-- HEADER -->
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-xl font-bold text-green-700">
+        {{ selectedFood.name }}
+      </h3>
+
+      <button
+        (click)="closeAddonPopup()"
+        class="text-gray-400 hover:text-gray-600 text-xl">
+        ✕
+      </button>
+    </div>
+
+    <!-- BASE PRICE -->
+    <p class="text-green-700 font-semibold mb-4">
+      Base Price: ₹{{ selectedFood.basePrice }}
+    </p>
+
+    <!-- ADDONS -->
+    <div *ngIf="selectedFood.addons.length">
+      <p class="font-medium mb-2">Choose Add-ons</p>
+
+      <label
+        *ngFor="let addon of selectedFood.addons"
+        class="flex items-center gap-2 mb-2 cursor-pointer">
+        <input
+          type="checkbox"
+          (change)="toggleAddon(addon)"
+          class="accent-green-600">
+        {{ addon.name }} (+₹{{ addon.price }})
+      </label>
+    </div>
+
+    <!-- TOTAL -->
+    <div class="flex justify-between items-center mt-4 font-bold">
+      <span>Total</span>
+      <span>₹{{ modalTotal }}</span>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="flex justify-end gap-3 mt-6">
+      <button
+        (click)="closeAddonPopup()"
+        class="px-4 py-2 border rounded-lg">
+        Cancel
+      </button>
+
+      <button
+        (click)="confirmAddToCart()"
+        class="px-5 py-2 bg-green-600 text-white rounded-lg
+               hover:bg-green-700">
+        Add to Cart
+      </button>
+    </div>
+
   </div>
 </div>
