@@ -8,24 +8,38 @@ import { RouterLink } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { CartService } from '../../services/cart';
 
+interface WishlistItem {
+  id: number;
+  name: string;
+  price: number;
+}
+
 @Component({
   standalone: true,
   templateUrl: './home.html',
-
-  // Routing directives for routerLink buttons
   imports: [RouterLink],
 })
 export class Home implements AfterViewInit {
 
-  constructor(
-    @Inject(PLATFORM_ID) private platformId: Object,
-    private cartService: CartService
-  ) {}
+  private isBrowser = false;
+  wishlist: WishlistItem[] = [];
 
-  /**
-   * Add item to cart from Home page
-   * (No addons on home page)
-   */
+  constructor(
+    @Inject(PLATFORM_ID) platformId: Object,
+    private cartService: CartService
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+
+    if (this.isBrowser) {
+      this.wishlist = JSON.parse(
+        localStorage.getItem('wishlist') || '[]'
+      );
+    }
+  }
+
+  /* =========================
+     CART
+  ========================== */
   addToCartFromHome(food: {
     foodId: number;
     name: string;
@@ -41,27 +55,47 @@ export class Home implements AfterViewInit {
     });
   }
 
-  /**
-   * Scroll animations (browser-only)
-   */
-  ngAfterViewInit(): void {
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
+  /* =========================
+     WISHLIST (FIXED)
+  ========================== */
+  toggleWishlist(item: WishlistItem) {
+    if (!this.isBrowser) return;
+
+    const index = this.wishlist.findIndex(i => i.id === item.id);
+
+    if (index > -1) {
+      this.wishlist.splice(index, 1);
+    } else {
+      this.wishlist.push(item);
     }
 
-    setTimeout(() => {
-      const elements = document.querySelectorAll('.animate-on-scroll');
+    localStorage.setItem(
+      'wishlist',
+      JSON.stringify(this.wishlist)
+    );
+  }
 
-      const observer = new IntersectionObserver(
-        entries => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('animate-show');
-            }
-          });
-        },
-        { threshold: 0.1 }
-      );
+  isWishlisted(id: number): boolean {
+    return this.wishlist.some(item => item.id === id);
+  }
+
+  /* =========================
+     SCROLL ANIMATIONS
+  ========================== */
+  ngAfterViewInit(): void {
+    if (!this.isBrowser) return;
+
+    setTimeout(() => {
+      const elements =
+        document.querySelectorAll('.animate-on-scroll');
+
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-show');
+          }
+        });
+      });
 
       elements.forEach(el => observer.observe(el));
     }, 0);

@@ -1,0 +1,61 @@
+<div class="min-h-screen bg-green-50 py-12">
+  <div class="max-w-4xl mx-auto px-4">
+
+    <!-- TITLE -->
+    <h1 class="text-3xl font-bold text-green-700 text-center mb-10">
+      Wishlist
+    </h1>
+
+    <!-- EMPTY STATE -->
+    <div
+      *ngIf="wishlist.length === 0"
+      class="flex flex-col items-center justify-center
+             text-gray-500 py-24"
+    >
+      <p class="text-lg">No items in your wishlist 💚</p>
+      <a
+        routerLink="/menu"
+        class="mt-4 text-green-600 font-medium hover:underline"
+      >
+        Explore menu
+      </a>
+    </div>
+
+    <!-- WISHLIST ITEMS -->
+    <div *ngIf="wishlist.length">
+
+      <div
+        *ngFor="let item of wishlist"
+        class="bg-white rounded-xl shadow p-4 mb-4
+               flex justify-between items-center"
+      >
+        <div>
+          <h3 class="font-semibold text-green-700">
+            {{ item.name }}
+          </h3>
+          <p class="text-sm text-gray-500">
+            ₹{{ item.price }}
+          </p>
+        </div>
+
+        <div class="flex gap-4">
+          <button
+            (click)="addToCart(item)"
+            class="text-green-600 text-sm hover:underline"
+          >
+            Add to Cart
+          </button>
+
+          <button
+            (click)="remove(item.id)"
+            class="text-red-500 text-sm hover:underline"
+          >
+            Remove
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>

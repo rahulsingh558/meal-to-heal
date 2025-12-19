@@ -1,54 +1,90 @@
-<div class="p-6">
+<div class="min-h-screen bg-green-50 py-12">
+  <div class="max-w-4xl mx-auto px-4">
 
-  <h2 class="text-xl font-bold mb-4">Your Cart</h2>
+    <!-- TITLE -->
+    <h1 class="text-3xl font-bold text-green-700 text-center mb-10">
+      Your Cart
+    </h1>
 
- <div *ngFor="let item of items; let i = index"
-     class="bg-white rounded-xl shadow p-4 mb-4">
-
-  <div class="flex justify-between items-start">
-    <div>
-      <h3 class="font-semibold">{{ item.name }}</h3>
-      <p class="text-xs text-gray-500">
-        <span *ngFor="let addon of item.addons">
-          {{ addon.name }}
-        </span>
-      </p>
+    <!-- EMPTY STATE -->
+    <div
+      *ngIf="items.length === 0"
+      class="flex flex-col items-center justify-center
+             text-gray-500 py-24"
+    >
+      <p class="text-lg">Your cart is empty 🛒</p>
+      <a
+        routerLink="/menu"
+        class="mt-4 text-green-600 font-medium hover:underline"
+      >
+        Browse menu
+      </a>
     </div>
 
-    <button
-      (click)="remove(i)"
-      class="text-red-500 text-sm"
-    >
-      Remove
-    </button>
-  </div>
+    <!-- CART ITEMS -->
+    <div *ngIf="items.length">
 
-  <div class="flex items-center justify-between mt-4">
-    <div class="flex items-center gap-3">
-      <button (click)="decrease(i)" class="px-3 py-1 border rounded">−</button>
-      <span>{{ item.quantity }}</span>
-      <button (click)="increase(i)" class="px-3 py-1 border rounded">+</button>
+      <div
+        *ngFor="let item of items; let i = index"
+        class="bg-white rounded-xl shadow p-4 mb-4"
+      >
+        <div class="flex justify-between items-start">
+          <div>
+            <h3 class="font-semibold text-green-700">
+              {{ item.name }}
+            </h3>
+
+            <p class="text-xs text-gray-500" *ngIf="item.addons.length">
+              <span *ngFor="let addon of item.addons; let last = last">
+                {{ addon.name }}<span *ngIf="!last">, </span>
+              </span>
+            </p>
+          </div>
+
+          <button
+            (click)="remove(i)"
+            class="text-red-500 text-sm hover:underline"
+          >
+            Remove
+          </button>
+        </div>
+
+        <div class="flex items-center justify-between mt-4">
+          <div class="flex items-center gap-3">
+            <button
+              (click)="decrease(i)"
+              class="px-3 py-1 border rounded"
+            >−</button>
+
+            <span>{{ item.quantity }}</span>
+
+            <button
+              (click)="increase(i)"
+              class="px-3 py-1 border rounded"
+            >+</button>
+          </div>
+
+          <p class="font-bold text-green-700">
+            ₹{{ item.totalPrice * item.quantity }}
+          </p>
+        </div>
+      </div>
+
+      <!-- TOTAL + CTA -->
+      <div class="mt-8">
+        <p class="font-bold text-right text-lg mb-4">
+          Total: ₹{{ getGrandTotal() }}
+        </p>
+
+        <button
+          routerLink="/checkout"
+          class="w-full bg-green-600 text-white py-3 rounded-xl
+                 hover:bg-green-700 transition"
+        >
+          Place Order
+        </button>
+      </div>
+
     </div>
-
-    <p class="font-bold">
-      ₹{{ item.totalPrice * item.quantity }}
-    </p>
   </div>
-</div>
-
-
-  <div *ngIf="items.length">
-    <hr class="my-4" />
-    <p class="font-bold text-right">
-      Total: ₹{{ getGrandTotal() }}
-    </p>
-
-    <button
-      routerLink="/checkout"
-      class="mt-4 w-full bg-green-600 text-white py-2 rounded-lg"
-    >
-      Proceed to Checkout
-    </button>
-  </div>
-
 </div>

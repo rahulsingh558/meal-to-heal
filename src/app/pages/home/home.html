@@ -108,23 +108,42 @@
     <div class="grid md:grid-cols-3 gap-8">
 
       <!-- ITEM 1 -->
-      <div class="bg-white rounded-2xl shadow p-4 animate-on-scroll animate-hidden">
+      <div class="relative bg-white rounded-2xl shadow p-4 animate-on-scroll animate-hidden">
+
+        <!-- WISHLIST -->
+        <button
+          (click)="toggleWishlist({
+            id: 1,
+            name: 'Classic Sprouts Bowl',
+            price: 99
+          })"
+          class="absolute top-3 right-3"
+        >
+          <svg
+            class="w-6 h-6 transition"
+            [class.text-red-500]="isWishlisted(1)"
+            [class.text-gray-300]="!isWishlisted(1)"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path d="M12 21s-7.5-4.35-10-8.5C-0.5 7.5 3.5 3 7.5 5.5 10 7.5 12 10 12 10s2-2.5 4.5-4.5C20.5 3 24.5 7.5 22 12.5 19.5 16.65 12 21 12 21z"/>
+          </svg>
+        </button>
+
         <img
           src="https://images.unsplash.com/photo-1540420828642-fca2c5c18abe?auto=format&fit=crop&w=800&q=80"
           class="rounded-xl mb-4"
         />
+
         <h3 class="font-semibold text-green-700">Classic Sprouts Bowl</h3>
         <p class="text-sm text-gray-600 mt-1">
           Fresh moong sprouts with veggies and lemon dressing.
         </p>
+
         <div class="mt-4 flex justify-between items-center">
           <span class="font-bold text-green-700">₹99</span>
           <button
-            (click)="addToCartFromHome({
-              foodId: 1,
-              name: 'Classic Sprouts Bowl',
-              basePrice: 99
-            })"
+            (click)="addToCartFromHome({ foodId: 1, name: 'Classic Sprouts Bowl', basePrice: 99 })"
             class="px-4 py-2 border rounded-lg text-green-600 hover:bg-green-50"
           >
             Add
@@ -133,23 +152,41 @@
       </div>
 
       <!-- ITEM 2 -->
-      <div class="bg-white rounded-2xl shadow p-4 animate-on-scroll animate-hidden">
+      <div class="relative bg-white rounded-2xl shadow p-4 animate-on-scroll animate-hidden">
+
+        <button
+          (click)="toggleWishlist({
+            id: 2,
+            name: 'Corn Paneer Mix',
+            price: 149
+          })"
+          class="absolute top-3 right-3"
+        >
+          <svg
+            class="w-6 h-6 transition"
+            [class.text-red-500]="isWishlisted(2)"
+            [class.text-gray-300]="!isWishlisted(2)"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path d="M12 21s-7.5-4.35-10-8.5C-0.5 7.5 3.5 3 7.5 5.5 10 7.5 12 10 12 10s2-2.5 4.5-4.5C20.5 3 24.5 7.5 22 12.5 19.5 16.65 12 21 12 21z"/>
+          </svg>
+        </button>
+
         <img
           src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80"
           class="rounded-xl mb-4"
         />
+
         <h3 class="font-semibold text-green-700">Corn Paneer Mix</h3>
         <p class="text-sm text-gray-600 mt-1">
           Sweet corn with paneer cubes and seasoning.
         </p>
+
         <div class="mt-4 flex justify-between items-center">
           <span class="font-bold text-green-700">₹149</span>
           <button
-            (click)="addToCartFromHome({
-              foodId: 2,
-              name: 'Corn Paneer Mix',
-              basePrice: 149
-            })"
+            (click)="addToCartFromHome({ foodId: 2, name: 'Corn Paneer Mix', basePrice: 149 })"
             class="px-4 py-2 border rounded-lg text-green-600 hover:bg-green-50"
           >
             Add
@@ -158,8 +195,7 @@
       </div>
 
       <!-- ITEM 3 -->
-      <div class="bg-white rounded-2xl shadow p-4 opacity-70
-                  animate-on-scroll animate-hidden">
+      <div class="bg-white rounded-2xl shadow p-4 opacity-70 animate-on-scroll animate-hidden">
         <img
           src="https://images.unsplash.com/photo-1598214886806-c87b84b7078b?auto=format&fit=crop&w=800&q=80"
           class="rounded-xl mb-4"
@@ -180,10 +216,8 @@
 
 <!-- CTA -->
 <section class="py-20 bg-green-700 text-white animate-on-scroll animate-hidden">
-  <div
-    class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row
-           items-center justify-between gap-6"
-  >
+  <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row
+              items-center justify-between gap-6">
     <div>
       <h2 class="text-3xl font-bold">Ready to Eat Healthy?</h2>
       <p class="mt-2 text-green-100">

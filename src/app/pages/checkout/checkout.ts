@@ -1,56 +1,87 @@
-import { Component } from '@angular/core';
+import { Component, Inject, PLATFORM_ID, OnInit } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { CartService } from '../../services/cart';
-import { OrderService } from '../../services/order.service';
 import { Router } from '@angular/router';
-import { take } from 'rxjs/operators';
+import { CartItem } from '../../models/cart-item';
 
 @Component({
   standalone: true,
   templateUrl: './checkout.html',
+  imports: [
+    CommonModule, // ✅ ngIf, ngFor
+    FormsModule,  // ✅ ngModel
+  ],
 })
-export class Checkout {
+export class Checkout implements OnInit {
   name = '';
   phone = '';
   address = '';
 
+  items: CartItem[] = [];
+  isPlacingOrder = false;
+  isBrowser = false;
+
   constructor(
     private cartService: CartService,
-    private orderService: OrderService,
-    private router: Router
-  ) {}
+    private router: Router,
+    @Inject(PLATFORM_ID) platformId: Object
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
+
+  ngOnInit(): void {
+    this.cartService.cart$.subscribe(items => {
+      this.items = items;
+    });
+  }
+
+  isFormValid(): boolean {
+    return (
+      this.name.trim().length > 0 &&
+      this.phone.trim().length >= 10 &&
+      this.address.trim().length > 0 &&
+      this.items.length > 0
+    );
+  }
+
+  getGrandTotal(): number {
+    return this.items.reduce(
+      (sum, item) => sum + item.totalPrice * item.quantity,
+      0
+    );
+  }
 
   placeOrder() {
-    this.cartService.cart$.pipe(take(1)).subscribe(items => {
-      if (items.length === 0) {
-        alert('Cart is empty');
-        return;
-      }
+    if (!this.isBrowser || !this.isFormValid()) return;
 
-      const orderPayload = {
-        items: items.map(i => ({
-          foodId: i.foodId,
-          name: i.name,
-          basePrice: i.basePrice,
-          quantity: i.quantity,
-        })),
-        customer: {
-          name: this.name,
-          phone: this.phone,
-          address: this.address,
-        },
-      };
+    this.isPlacingOrder = true;
 
-      this.orderService.placeOrder(orderPayload).subscribe({
-        next: res => {
-          alert(`Order placed successfully! Order ID: ${res.orderId}`);
-          this.cartService.clearCart();
-          this.router.navigate(['/']);
-        },
-        error: err => {
-          console.error(err);
-          alert('Failed to place order');
-        },
-      });
-    });
+    const order = {
+      id: 'ORD-' + Date.now(),
+      date: new Date().toISOString(),
+      customer: {
+        name: this.name,
+        phone: this.phone,
+        address: this.address,
+      },
+      items: this.items,
+      total: this.getGrandTotal(),
+    };
+
+    const existingOrders =
+      JSON.parse(localStorage.getItem('orders') || '[]');
+
+    localStorage.setItem(
+      'orders',
+      JSON.stringify([order, ...existingOrders])
+    );
+
+    setTimeout(() => {
+      this.isPlacingOrder = false;
+      this.cartService.clearCart();
+      alert('Order placed successfully!');
+      this.router.navigate(['/orders']);
+    }, 800);
   }
 }

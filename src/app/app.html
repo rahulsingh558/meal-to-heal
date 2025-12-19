@@ -1,18 +1,161 @@
 <!-- HEADER -->
 <header class="border-b bg-white sticky top-0 z-50">
   <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+
+    <!-- LOGO -->
     <a
       routerLink="/"
-      (click)="scrollToTop()"
-      class="text-green-600 font-bold text-lg hover:text-green-700 transition"
+      (click)="scrollToTop(); closeMobileMenu()"
+      class="text-green-600 font-bold text-lg"
     >
       Meal to Heal
     </a>
 
-    <nav class="flex gap-6 text-sm font-medium">
-      <a routerLink="/menu" class="hover:text-green-600">Menu</a>
-      <a routerLink="/cart" class="hover:text-green-600">Cart</a>
+    <!-- DESKTOP NAV -->
+    <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
+      <a routerLink="/menu">Menu</a>
+
+      <a routerLink="/cart" class="relative">
+        Cart
+        <span
+          *ngIf="cartCount > 0"
+          class="absolute -top-2 -right-3 bg-red-500 text-white text-xs
+                 w-5 h-5 flex items-center justify-center rounded-full">
+          {{ cartCount }}
+        </span>
+      </a>
+
+      <!-- PROFILE DROPDOWN -->
+      <div class="relative" appClickOutside (appClickOutside)="closeProfileMenu()">
+        <button
+          (click)="toggleProfileMenu()"
+          class="w-10 h-10 rounded-full bg-green-100 text-green-700"
+          aria-label="Profile"
+        >
+          👤
+        </button>
+
+        <div
+          *ngIf="showProfileMenu"
+          class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow border overflow-hidden"
+        >
+          <!-- LOGGED IN -->
+          <ng-container *ngIf="isLoggedIn(); else desktopLoggedOut">
+            <a routerLink="/orders" (click)="closeProfileMenu()" class="block px-4 py-3 hover:bg-green-50">
+              My Orders
+            </a>
+
+            <a routerLink="/wishlist" (click)="closeProfileMenu()" class="block px-4 py-3 hover:bg-green-50">
+              Wishlist
+            </a>
+
+            <a routerLink="/account" (click)="closeProfileMenu()" class="block px-4 py-3 hover:bg-green-50">
+              Account Settings
+            </a>
+
+            <a routerLink="/contact" (click)="closeProfileMenu()" class="block px-4 py-3 hover:bg-green-50">
+              Contact Us
+            </a>
+
+            <button
+              (click)="logout()"
+              class="block w-full text-left px-4 py-3 text-red-600 hover:bg-red-50"
+            >
+              Sign Out
+            </button>
+          </ng-container>
+
+          <!-- LOGGED OUT -->
+          <ng-template #desktopLoggedOut>
+            <a routerLink="/wishlist" (click)="closeProfileMenu()" class="block px-4 py-3 hover:bg-green-50">
+              Wishlist
+            </a>
+
+            <a routerLink="/login" (click)="closeProfileMenu()" class="block px-4 py-3 hover:bg-green-50">
+              Login
+            </a>
+
+            <a routerLink="/signup" (click)="closeProfileMenu()" class="block px-4 py-3 hover:bg-green-50">
+              Sign Up
+            </a>
+
+            <a routerLink="/contact" (click)="closeProfileMenu()" class="block px-4 py-3 hover:bg-green-50">
+              Contact Us
+            </a>
+          </ng-template>
+        </div>
+      </div>
     </nav>
+
+    <!-- MOBILE MENU BUTTON -->
+    <button
+      class="md:hidden text-green-700"
+      (click)="toggleMobileMenu()"
+      aria-label="Open menu"
+    >
+      ☰
+    </button>
+  </div>
+
+  <!-- MOBILE NAV -->
+  <div
+    *ngIf="mobileMenuOpen"
+    appClickOutside
+    (appClickOutside)="closeMobileMenu()"
+    class="md:hidden bg-white border-t"
+  >
+    <a routerLink="/menu" (click)="closeMobileMenu()" class="block px-4 py-3">
+      Menu
+    </a>
+
+    <a routerLink="/cart" (click)="closeMobileMenu()" class="block px-4 py-3">
+      Cart
+    </a>
+
+    <!-- LOGGED IN -->
+    <ng-container *ngIf="isLoggedIn(); else mobileLoggedOut">
+      <a routerLink="/wishlist" (click)="closeMobileMenu()" class="block px-4 py-3">
+        Wishlist
+      </a>
+
+      <a routerLink="/orders" (click)="closeMobileMenu()" class="block px-4 py-3">
+        My Orders
+      </a>
+
+      <a routerLink="/account" (click)="closeMobileMenu()" class="block px-4 py-3">
+        Account Settings
+      </a>
+
+      <a routerLink="/contact" (click)="closeMobileMenu()" class="block px-4 py-3">
+        Contact Us
+      </a>
+
+      <button
+        (click)="logout()"
+        class="block w-full text-left px-4 py-3 text-red-600"
+      >
+        Sign Out
+      </button>
+    </ng-container>
+
+    <!-- LOGGED OUT -->
+    <ng-template #mobileLoggedOut>
+      <a routerLink="/wishlist" (click)="closeMobileMenu()" class="block px-4 py-3">
+        Wishlist
+      </a>
+
+      <a routerLink="/login" (click)="closeMobileMenu()" class="block px-4 py-3">
+        Login
+      </a>
+
+      <a routerLink="/signup" (click)="closeMobileMenu()" class="block px-4 py-3">
+        Sign Up
+      </a>
+
+      <a routerLink="/contact" (click)="closeMobileMenu()" class="block px-4 py-3">
+        Contact Us
+      </a>
+    </ng-template>
   </div>
 </header>
 
@@ -20,38 +163,3 @@
 <main class="min-h-[calc(100vh-64px-280px)]">
   <router-outlet></router-outlet>
 </main>
-
-<!-- FOOTER (GLOBAL) -->
-<footer class="bg-gray-900 text-gray-300 py-12">
-  <div class="max-w-6xl mx-auto px-4 grid md:grid-cols-3 gap-8">
-    <div>
-      <h3 class="text-green-500 font-bold text-lg">Meal to Heal</h3>
-      <p class="text-sm mt-2">
-        Healthy food delivered fresh across Bangalore.
-      </p>
-    </div>
-
-    <div>
-      <h4 class="font-semibold mb-2">Contact</h4>
-      <p class="text-sm">📍 Bangalore</p>
-      <p class="text-sm">📞 +91 98765 43210</p>
-    </div>
-
-    <div>
-      <h4 class="font-semibold mb-2">Delivery Areas</h4>
-      <p class="text-sm">
-        Koramangala • Indiranagar • HSR • Whitefield
-      </p>
-    </div>
-  </div>
-
-  <p class="text-center text-xs mt-8 text-gray-500">
-    © 2024 Meal to Heal. All rights reserved.
-  </p>
-</footer>
-
-
-
-
-
-
