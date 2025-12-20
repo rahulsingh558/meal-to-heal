@@ -8,10 +8,11 @@ import {
 } from '../../services/menu-admin.service';
 
 import { AdminAuthService } from '../../services/admin-auth.service';
+import { RouterModule } from '@angular/router';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './admin-dashboard.html',
 })
 export class AdminDashboard {

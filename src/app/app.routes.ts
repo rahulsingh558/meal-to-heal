@@ -4,7 +4,6 @@ import { adminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
   /* ================= PUBLIC PAGES ================= */
-
   {
     path: '',
     loadComponent: () =>
@@ -32,7 +31,6 @@ export const routes: Routes = [
   },
 
   /* ================= USER PROTECTED ================= */
-
   {
     path: 'checkout',
     canActivate: [authGuard],
@@ -58,7 +56,6 @@ export const routes: Routes = [
   },
 
   /* ================= ADMIN ================= */
-
   // 🔓 ADMIN LOGIN (NO GUARD)
   {
     path: 'admin/login',
@@ -66,17 +63,21 @@ export const routes: Routes = [
       import('./pages/admin/admin-login').then(m => m.AdminLogin),
   },
 
-  // 🔐 ADMIN AREA (WITH LAYOUT)
+  // 🔐 ADMIN AREA (WITH LAYOUT) - IMPORTANT: Admin routes come BEFORE wildcard
   {
-  path: 'admin/dashboard',
-  canActivate: [adminGuard],
-  loadComponent: () =>
-    import('./pages/admin/admin-dashboard')
-      .then(m => m.AdminDashboard),
-},
+    path: 'admin/dashboard',
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import('./pages/admin/admin-dashboard').then(m => m.AdminDashboard),
+  },
+  {
+    path: 'admin/orders',
+    // canActivate: [adminGuard],
+    loadComponent: () =>
+      import('./pages/admin/orders/admin-orders').then(m => m.AdminOrdersComponent),
+  },
 
   /* ================= FALLBACK ================= */
-
   {
     path: '**',
     redirectTo: '',

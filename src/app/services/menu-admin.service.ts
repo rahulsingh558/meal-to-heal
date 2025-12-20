@@ -97,7 +97,7 @@ export class MenuAdminService {
      SEED (ONE TIME SYNC)
      Used to copy menu.ts items into admin
   ========================== */
-  seedIfEmpty(items: AdminMenuItem[]): void {debugger
+  seedIfEmpty(items: AdminMenuItem[]): void {
     if (!this.isBrowser) return;
     if (this.getAll().length > 0) return;
     this.save(items);
