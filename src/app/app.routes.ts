@@ -47,6 +47,7 @@ export const routes: Routes = [
   },
   {
     path: 'wishlist',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./pages/wishlist/wishlist').then(m => m.Wishlist),
   },
@@ -59,20 +60,21 @@ export const routes: Routes = [
 
   /* ================= ADMIN ================= */
 
-  // ✅ ADMIN LOGIN (NO GUARD)
+  // 🔓 ADMIN LOGIN (NO GUARD)
   {
     path: 'admin/login',
     loadComponent: () =>
       import('./pages/admin/admin-login').then(m => m.AdminLogin),
   },
 
-  // ✅ ADMIN DASHBOARD (GUARDED)
+  // 🔐 ADMIN AREA (WITH LAYOUT)
   {
-    path: 'admin/dashboard',
-    canActivate: [adminGuard],
-    loadComponent: () =>
-      import('./pages/admin/admin-dashboard').then(m => m.AdminDashboard),
-  },
+  path: 'admin/dashboard',
+  canActivate: [adminGuard],
+  loadComponent: () =>
+    import('./pages/admin/admin-dashboard')
+      .then(m => m.AdminDashboard),
+},
 
   /* ================= FALLBACK ================= */
 

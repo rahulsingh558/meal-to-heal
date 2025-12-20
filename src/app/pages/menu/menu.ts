@@ -4,17 +4,20 @@ import { CartService } from '../../services/cart';
 import { MenuAdminService, AdminMenuItem } from '../../services/menu-admin.service';
 import { Food } from '../../models/food';
 import { Addon } from '../../models/addon';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faCartPlus } from '@fortawesome/free-solid-svg-icons';
 
 type FoodType = 'veg' | 'egg' | 'nonveg';
 
 @Component({
   standalone: true,
   selector: 'app-menu',
-  imports: [CommonModule],
+  imports: [CommonModule, FontAwesomeModule],
   templateUrl: './menu.html',
 })
 export class Menu {
   isBrowser = false;
+  faCartPlus = faCartPlus;
 
   selectedType: 'all' | FoodType = 'all';
 
@@ -55,7 +58,7 @@ export class Menu {
   /* =========================
      LOAD MENU (ADMIN → USER)
   ========================== */
-  loadMenu() {
+  loadMenu() {debugger
     const adminItems = this.adminMenu.getAll();
 
     if (adminItems.length > 0) {

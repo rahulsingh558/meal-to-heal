@@ -10,6 +10,7 @@ import { AdminAuthService } from '../../services/admin-auth.service';
   templateUrl: './admin-login.html',
 })
 export class AdminLogin {
+  showPass: boolean = false;
   username = '';
   password = '';
   error = '';
