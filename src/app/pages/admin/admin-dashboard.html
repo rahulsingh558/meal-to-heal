@@ -1,93 +1,152 @@
-<div class="min-h-screen bg-green-50 py-10 px-6">
+<div class="min-h-screen bg-gray-100 p-6">
 
-  <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow">
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-bold text-green-700">
-        Admin Dashboard
-      </h2>
-
-      <button
-        (click)="logout()"
-        class="text-red-600 hover:underline">
-        Logout
-      </button>
-    </div>
-
-    <!-- ADD ITEM -->
-    <h3 class="font-semibold mb-3">Add New Item</h3>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-
-      <input
-        type="text"
-        [(ngModel)]="newItem.name"
-        placeholder="Item name"
-        class="border p-2 rounded" />
-
-      <input
-        type="number"
-        [(ngModel)]="newItem.basePrice"
-        placeholder="Base price"
-        class="border p-2 rounded" />
-
-      <select
-        [(ngModel)]="newItem.type"
-        class="border p-2 rounded">
-        <option value="veg">Veg</option>
-        <option value="egg">Egg</option>
-        <option value="nonveg">Non-Veg</option>
-      </select>
-
-      <input
-        type="text"
-        [(ngModel)]="newItem.image"
-        placeholder="Image URL"
-        class="border p-2 rounded" />
-
-        <input
-          type="text"
-          placeholder="Subtitle (e.g. Healthy • Fresh • Protein-rich)"
-          [(ngModel)]="newItem.subtitle"
-          class="border p-2 rounded w-full mb-2"
-        />
-
-    </div>
+  <!-- HEADER -->
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">
+      Admin Dashboard
+    </h1>
 
     <button
-      (click)="addItem()"
-      class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-      Add Item
+      (click)="logout()"
+      class="text-red-600 hover:underline">
+      Logout
     </button>
+  </div>
 
-    <!-- LIST ITEMS -->
-    <h3 class="font-semibold mt-10 mb-3">Menu Items</h3>
+  <!-- STATS -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
 
-    <div
-      *ngFor="let item of items"
-      class="flex justify-between items-center border-b py-3">
+    <!-- TOTAL ORDERS -->
+    <div class="bg-white p-5 rounded-xl shadow">
+      <p class="text-sm text-gray-500">Total Orders</p>
+      <p class="text-3xl font-bold mt-1">{{ totalOrders }}</p>
+      <p class="text-sm text-green-600 mt-1">
+        +{{ ordersLast5Days }} in last 5 days
+      </p>
+    </div>
 
-      <div class="flex items-center gap-3">
-        <img
-          *ngIf="item.image"
-          [src]="item.image"
-          class="w-12 h-12 object-cover rounded" />
+    <!-- TOTAL REVENUE -->
+    <div class="bg-white p-5 rounded-xl shadow">
+      <p class="text-sm text-gray-500">Total Revenue</p>
+      <p class="text-3xl font-bold mt-1">₹{{ revenueThisWeek }}</p>
+      <p
+        class="text-sm mt-1"
+        [class.text-green-600]="revenueGrowthPercent >= 0"
+        [class.text-red-600]="revenueGrowthPercent < 0">
+        {{ revenueGrowthPercent }}% vs last week
+      </p>
+    </div>
 
-        <div>
-          <p class="font-medium">
-            {{ item.name }}
-          </p>
-          <p class="text-sm text-gray-500">
-            ₹{{ item.basePrice }} • {{ item.type }}
-          </p>
-        </div>
-      </div>
+    <!-- CUSTOMERS -->
+    <div class="bg-white p-5 rounded-xl shadow">
+      <p class="text-sm text-gray-500">Total Customers</p>
+      <p class="text-3xl font-bold mt-1">{{ totalCustomers }}</p>
+    </div>
 
-      <button
-        (click)="deleteItem(item.id)"
-        class="text-red-600 hover:underline">
-        Delete
-      </button>
+    <!-- NOTIFICATIONS -->
+    <div class="bg-white p-5 rounded-xl shadow">
+      <p class="text-sm text-gray-500">Notifications</p>
+      <p class="text-3xl font-bold mt-1">{{ notifications }}</p>
     </div>
 
   </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <!-- RECENT ORDERS -->
+    <div class="bg-white p-6 rounded-xl shadow">
+      <h3 class="font-semibold mb-4">Recent Orders</h3>
+
+      <div
+        *ngFor="let order of recentOrders"
+        class="flex justify-between border-b py-2 text-sm">
+
+        <span>{{ order.id }} • {{ order.customer }}</span>
+        <span>₹{{ order.amount }} • {{ order.status }}</span>
+      </div>
+    </div>
+
+    <!-- BEST SELLING -->
+    <div class="bg-white p-6 rounded-xl shadow">
+      <h3 class="font-semibold mb-4">Best Selling Products</h3>
+
+      <div
+        *ngFor="let item of bestSelling"
+        class="flex justify-between border-b py-2 text-sm">
+
+        <span>{{ item.name }}</span>
+        <span class="font-medium">{{ item.sold }} sold</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CHARTS -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+
+    <!-- ORDERS BAR CHART -->
+    <div class="bg-white p-6 rounded-xl shadow">
+      <h3 class="font-semibold mb-4">Orders (Last 5 Days)</h3>
+
+      <svg viewBox="0 0 300 180" class="w-full h-48">
+        <g *ngFor="let item of ordersChart; let i = index">
+
+          <rect
+            [attr.x]="i * 55 + 30"
+            [attr.y]="160 - (item.value / maxOrders) * 120"
+            width="30"
+            [attr.height]="(item.value / maxOrders) * 120"
+            class="fill-green-600">
+          </rect>
+
+          <text
+            [attr.x]="i * 55 + 45"
+            y="175"
+            text-anchor="middle"
+            class="text-xs fill-gray-500">
+            {{ item.day }}
+          </text>
+
+        </g>
+      </svg>
+    </div>
+
+    <!-- REVENUE LINE CHART -->
+    <div class="bg-white p-6 rounded-xl shadow">
+      <h3 class="font-semibold mb-4">Revenue Trend</h3>
+
+      <svg viewBox="0 0 300 180" class="w-full h-48">
+
+        <polyline
+          fill="none"
+          stroke="#16a34a"
+          stroke-width="3"
+          [attr.points]="revenuePolylinePoints">
+        </polyline>
+
+        <g *ngFor="let point of revenueChart; let i = index">
+
+          <circle
+            [attr.cx]="i * 60 + 20"
+            [attr.cy]="160 - (point.value / maxRevenue) * 120"
+            r="4"
+            class="fill-green-600">
+          </circle>
+
+          <text
+            [attr.x]="i * 60 + 20"
+            y="175"
+            text-anchor="middle"
+            class="text-xs fill-gray-500">
+            {{ point.day }}
+          </text>
+
+        </g>
+
+      </svg>
+    </div>
+
+  </div>
+
 </div>

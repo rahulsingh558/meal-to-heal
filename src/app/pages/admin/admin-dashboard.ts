@@ -15,11 +15,11 @@ import { AdminAuthService } from '../../services/admin-auth.service';
   templateUrl: './admin-dashboard.html',
 })
 export class AdminDashboard {
+  /* =========================
+     MENU ITEMS
+  ========================== */
   items: AdminMenuItem[] = [];
 
-  /* =========================
-     NEW ITEM FORM MODEL
-  ========================== */
   newItem: Omit<AdminMenuItem, 'id'> = {
     name: '',
     subtitle: 'Healthy • Fresh • Protein-rich',
@@ -30,13 +30,89 @@ export class AdminDashboard {
     extraAddons: [],
   };
 
+  /* =========================
+     DASHBOARD METRICS
+  ========================== */
+  totalOrders = 124;
+  totalCustomers = 68;
+  notifications = 3;
+
+  revenueThisWeek = 11980;
+  revenueLastWeek = 9800;
+
+  get totalRevenue(): number {
+    return this.revenueThisWeek;
+  }
+
+  get revenueChangePercent(): number {
+    if (this.revenueLastWeek === 0) return 0;
+
+    return Math.round(
+      ((this.revenueThisWeek - this.revenueLastWeek) /
+        this.revenueLastWeek) *
+        100
+    );
+  }
+
+  /* ✅ ALIAS USED BY TEMPLATE */
+  get revenueGrowthPercent(): number {
+    return this.revenueChangePercent;
+  }
+
+  /* =========================
+     ORDERS BAR CHART
+  ========================== */
+  ordersChart: { day: string; value: number }[] = [
+    { day: 'Mon', value: 12 },
+    { day: 'Tue', value: 18 },
+    { day: 'Wed', value: 9 },
+    { day: 'Thu', value: 15 },
+    { day: 'Fri', value: 21 },
+  ];
+
+  maxOrders = Math.max(...this.ordersChart.map(o => o.value));
+
+  get ordersLast5Days(): number {
+    return this.ordersChart.reduce((sum, o) => sum + o.value, 0);
+  }
+
+  /* =========================
+     REVENUE LINE CHART
+  ========================== */
+  revenueChart: { day: string; value: number }[] = [
+    { day: 'Mon', value: 8200 },
+    { day: 'Tue', value: 9100 },
+    { day: 'Wed', value: 7600 },
+    { day: 'Thu', value: 10400 },
+    { day: 'Fri', value: 11980 },
+  ];
+
+  maxRevenue = Math.max(...this.revenueChart.map(r => r.value));
+  revenuePolylinePoints = '';
+
+  /* =========================
+     TABLE DATA
+  ========================== */
+  recentOrders = [
+    { id: '#ORD-101', customer: 'Rahul', amount: 280, status: 'Paid' },
+    { id: '#ORD-102', customer: 'Amit', amount: 160, status: 'Paid' },
+    { id: '#ORD-103', customer: 'Neha', amount: 340, status: 'Pending' },
+    { id: '#ORD-104', customer: 'Sneha', amount: 220, status: 'Paid' },
+    { id: '#ORD-105', customer: 'Vikas', amount: 180, status: 'Cancelled' },
+  ];
+
+  bestSelling = [
+    { name: 'Moong Sprouts Bowl', sold: 52 },
+    { name: 'Egg Meal Bowl', sold: 41 },
+    { name: 'Paneer Sprouts Bowl', sold: 34 },
+    { name: 'Chicken Bowl', sold: 28 },
+  ];
+
   constructor(
     private menuService: MenuAdminService,
     private auth: AdminAuthService
   ) {
-    /* =========================
-       SEED MENU (RUNS ONCE)
-    ========================== */
+    /* Seed menu once */
     this.menuService.seedIfEmpty([
       {
         id: 1,
@@ -53,64 +129,37 @@ export class AdminDashboard {
         ],
         extraAddons: [],
       },
-
-      {
-        id: 2,
-        name: 'Chana Sprouts Bowl',
-        subtitle: 'Light • Fresh • Protein-rich',
-        basePrice: 90,
-        type: 'veg',
-        image:
-          'https://images.unsplash.com/photo-1512621776951-a57141f2eefd',
-        defaultAddons: [
-          { id: 1, name: 'Onion', price: 0 },
-          { id: 2, name: 'Tomato', price: 0 },
-          { id: 3, name: 'Cucumber', price: 0 },
-        ],
-        extraAddons: [],
-      },
-
-      {
-        id: 3,
-        name: 'Egg Meal Bowl',
-        subtitle: 'High Protein • Power Meal',
-        basePrice: 130,
-        type: 'egg',
-        image:
-          'https://images.unsplash.com/photo-1604908177093-0f0dbe3cfc0c',
-        defaultAddons: [
-          { id: 1, name: 'Onion', price: 0 },
-          { id: 2, name: 'Tomato', price: 0 },
-          { id: 3, name: 'Cucumber', price: 0 },
-          { id: 4, name: 'Capsicum', price: 0 },
-        ],
-        extraAddons: [],
-      },
     ]);
 
     this.loadItems();
+    this.buildRevenuePolyline();
   }
 
   /* =========================
-     LOAD
+     HELPERS
+  ========================== */
+  buildRevenuePolyline() {
+    this.revenuePolylinePoints = this.revenueChart
+      .map(
+        (p, i) =>
+          `${i * 60 + 20},${160 - (p.value / this.maxRevenue) * 120}`
+      )
+      .join(' ');
+  }
+
+  /* =========================
+     CRUD
   ========================== */
   loadItems() {
     this.items = this.menuService.getAll();
   }
 
-  /* =========================
-     ADD ITEM
-  ========================== */
   addItem() {
-    if (!this.newItem.name || this.newItem.basePrice <= 0) {
-      alert('Please enter valid name and price');
-      return;
-    }
+    if (!this.newItem.name || this.newItem.basePrice <= 0) return;
 
     this.menuService.add(this.newItem);
     this.loadItems();
 
-    // Reset form
     this.newItem = {
       name: '',
       subtitle: 'Healthy • Fresh • Protein-rich',
@@ -122,9 +171,6 @@ export class AdminDashboard {
     };
   }
 
-  /* =========================
-     DELETE
-  ========================== */
   deleteItem(id: number) {
     if (confirm('Delete this item?')) {
       this.menuService.delete(id);
@@ -132,9 +178,6 @@ export class AdminDashboard {
     }
   }
 
-  /* =========================
-     LOGOUT
-  ========================== */
   logout() {
     this.auth.logout();
   }
