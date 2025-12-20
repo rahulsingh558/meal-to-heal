@@ -257,6 +257,7 @@
         </div>
 
         <!-- OTP Input -->
+       <!-- OTP Input -->
         <div>
           <label class="block text-gray-700 text-sm font-medium mb-2">
             Enter 6-digit OTP
@@ -267,6 +268,7 @@
               type="text"
               maxlength="1"
               [(ngModel)]="otp[index]"
+              #otpInput
               (input)="onOtpInput($event, index)"
               (keydown)="onOtpKeyDown($event, index)"
               (paste)="onOtpPaste($event)"

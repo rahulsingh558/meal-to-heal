@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChildren, QueryList, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -10,6 +10,8 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './login.html',
 })
 export class Login {
+  @ViewChildren('otpInput') otpInputs!: QueryList<ElementRef>;
+  
   // Main login form
   email = '';
   password = '';
@@ -99,7 +101,6 @@ export class Login {
     console.log(`OTP ${this.generatedOTP} sent to ${this.countryCode}${this.whatsappNumber}`);
     
     // In production, you would send this OTP via WhatsApp API
-    // For demo, we'll just log it and show in console
     console.log(`DEMO: OTP is ${this.generatedOTP} - In production, this would be sent via WhatsApp`);
     
     // Start resend timer (60 seconds)
@@ -136,9 +137,14 @@ export class Login {
     
     // Clear OTP input
     this.otp = ['', '', '', '', '', ''];
+    
+    // Focus first input
+    setTimeout(() => {
+      this.focusOtpInput(0);
+    }, 100);
   }
 
-  // OTP input handling
+  // OTP input handling - FIXED VERSION
   onOtpInput(event: any, index: number) {
     const input = event.target;
     const value = input.value;
@@ -149,45 +155,56 @@ export class Login {
       return;
     }
     
-    // Auto-focus next input
+    // Update the model
+    this.otp[index] = value;
+    
+    // Auto-focus next input if value is entered
     if (value && index < 5) {
-      const nextInput = document.querySelector(`[ng-reflect-name="${index + 1}"]`) as HTMLInputElement;
-      if (nextInput) {
-        nextInput.focus();
-      }
+      setTimeout(() => {
+        this.focusOtpInput(index + 1);
+      }, 10);
     }
     
-    // Auto-focus previous on backspace if empty
-    if (!value && index > 0 && event.inputType === 'deleteContentBackward') {
-      const prevInput = document.querySelector(`[ng-reflect-name="${index - 1}"]`) as HTMLInputElement;
-      if (prevInput) {
-        prevInput.focus();
-      }
+    // Auto-submit if all digits are entered
+    if (index === 5 && value && this.isOtpComplete()) {
+      setTimeout(() => {
+        this.verifyOTP();
+      }, 100);
     }
   }
 
   onOtpKeyDown(event: KeyboardEvent, index: number) {
+    const currentValue = this.otp[index];
+    
     // Handle backspace
-    if (event.key === 'Backspace' && !this.otp[index] && index > 0) {
-      const prevInput = document.querySelector(`[ng-reflect-name="${index - 1}"]`) as HTMLInputElement;
-      if (prevInput) {
-        prevInput.focus();
+    if (event.key === 'Backspace') {
+      if (!currentValue && index > 0) {
+        // If current input is empty and backspace pressed, focus previous input
+        event.preventDefault();
+        this.otp[index] = '';
+        setTimeout(() => {
+          this.focusOtpInput(index - 1);
+        }, 10);
+      } else if (currentValue) {
+        // If current input has value, clear it
+        this.otp[index] = '';
       }
     }
     
     // Handle arrow keys
     if (event.key === 'ArrowLeft' && index > 0) {
-      const prevInput = document.querySelector(`[ng-reflect-name="${index - 1}"]`) as HTMLInputElement;
-      if (prevInput) {
-        prevInput.focus();
-      }
+      event.preventDefault();
+      this.focusOtpInput(index - 1);
     }
     
     if (event.key === 'ArrowRight' && index < 5) {
-      const nextInput = document.querySelector(`[ng-reflect-name="${index + 1}"]`) as HTMLInputElement;
-      if (nextInput) {
-        nextInput.focus();
-      }
+      event.preventDefault();
+      this.focusOtpInput(index + 1);
+    }
+    
+    // Handle delete key
+    if (event.key === 'Delete') {
+      this.otp[index] = '';
     }
   }
 
@@ -196,15 +213,32 @@ export class Login {
     const pastedData = event.clipboardData?.getData('text/plain').trim();
     
     if (pastedData && /^\d{6}$/.test(pastedData)) {
+      // Split the pasted data into individual digits
+      const digits = pastedData.split('');
       for (let i = 0; i < 6; i++) {
-        this.otp[i] = pastedData[i];
+        this.otp[i] = digits[i] || '';
       }
       
       // Focus last input
-      const lastInput = document.querySelector('[ng-reflect-name="5"]') as HTMLInputElement;
-      if (lastInput) {
-        lastInput.focus();
+      setTimeout(() => {
+        this.focusOtpInput(5);
+      }, 10);
+      
+      // Auto-verify if complete
+      if (this.isOtpComplete()) {
+        setTimeout(() => {
+          this.verifyOTP();
+        }, 100);
       }
+    }
+  }
+
+  // Helper method to focus OTP input
+  focusOtpInput(index: number) {
+    if (this.otpInputs && this.otpInputs.toArray()[index]) {
+      this.otpInputs.toArray()[index].nativeElement.focus();
+      // Select the text in the input for easy replacement
+      this.otpInputs.toArray()[index].nativeElement.select();
     }
   }
 
@@ -236,11 +270,18 @@ export class Login {
       this.otp = ['', '', '', '', '', ''];
       // Focus first input
       setTimeout(() => {
-        const firstInput = document.querySelector('[ng-reflect-name="0"]') as HTMLInputElement;
-        if (firstInput) {
-          firstInput.focus();
-        }
+        this.focusOtpInput(0);
       }, 100);
     }
+  }
+
+  // Additional method to handle when OTP modal opens (focus first input)
+  ngAfterViewInit() {
+    // When modal opens and OTP is shown, focus first input
+    setTimeout(() => {
+      if (this.showWhatsAppModal && this.otpSent) {
+        this.focusOtpInput(0);
+      }
+    }, 300);
   }
 }
