@@ -16,15 +16,21 @@ import { AdminAuthService } from '../../services/admin-auth.service';
 })
 export class AdminDashboard {
   /* =========================
+     SIDEBAR STATE
+  ========================== */
+  isSidebarOpen = false;
+
+  /* =========================
      MENU ITEMS
   ========================== */
   items: AdminMenuItem[] = [];
-
+  showMenuForm = false;
+  
   newItem: Omit<AdminMenuItem, 'id'> = {
     name: '',
     subtitle: 'Healthy • Fresh • Protein-rich',
     basePrice: 0,
-    type: 'veg',
+    type: 'veg', // Default type
     image: '',
     defaultAddons: [],
     extraAddons: [],
@@ -46,7 +52,6 @@ export class AdminDashboard {
 
   get revenueChangePercent(): number {
     if (this.revenueLastWeek === 0) return 0;
-
     return Math.round(
       ((this.revenueThisWeek - this.revenueLastWeek) /
         this.revenueLastWeek) *
@@ -121,7 +126,7 @@ export class AdminDashboard {
         basePrice: 80,
         type: 'veg',
         image:
-          'https://images.unsplash.com/photo-1540420828642-fca2c5c18abe',
+          'https://images.unsplash.com/photo-1540420828642-fca2c5c18abe?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
         defaultAddons: [
           { id: 1, name: 'Onion', price: 0 },
           { id: 2, name: 'Tomato', price: 0 },
@@ -129,10 +134,54 @@ export class AdminDashboard {
         ],
         extraAddons: [],
       },
+      {
+        id: 2,
+        name: 'Egg Meal Bowl',
+        subtitle: 'Protein-packed • Healthy • Delicious',
+        basePrice: 120,
+        type: 'egg',
+        image:
+          'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
+        defaultAddons: [
+          { id: 1, name: 'Lettuce', price: 0 },
+          { id: 2, name: 'Carrot', price: 0 },
+        ],
+        extraAddons: [
+          { id: 3, name: 'Extra Cheese', price: 20 },
+          { id: 4, name: 'Avocado', price: 30 },
+        ],
+      },
+      {
+        id: 3,
+        name: 'Chicken Bowl',
+        subtitle: 'High Protein • Non-Vegetarian • Fresh',
+        basePrice: 140,
+        type: 'nonveg',
+        image:
+          'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80',
+        defaultAddons: [
+          { id: 1, name: 'Onion', price: 0 },
+          { id: 2, name: 'Tomato', price: 0 },
+          { id: 3, name: 'Capsicum', price: 0 },
+        ],
+        extraAddons: [
+          { id: 4, name: 'Extra Chicken', price: 50 },
+        ],
+      },
     ]);
 
     this.loadItems();
     this.buildRevenuePolyline();
+    
+    // On desktop, sidebar is open by default
+    this.isSidebarOpen = window.innerWidth >= 1024;
+  }
+
+  /* =========================
+     SIDEBAR METHODS
+  ========================== */
+  toggleSidebar() {
+    this.isSidebarOpen = !this.isSidebarOpen;
   }
 
   /* =========================
@@ -142,7 +191,7 @@ export class AdminDashboard {
     this.revenuePolylinePoints = this.revenueChart
       .map(
         (p, i) =>
-          `${i * 60 + 20},${160 - (p.value / this.maxRevenue) * 120}`
+          `${i * 80 + 40},${160 - (p.value / this.maxRevenue) * 120}`
       )
       .join(' ');
   }
@@ -160,6 +209,7 @@ export class AdminDashboard {
     this.menuService.add(this.newItem);
     this.loadItems();
 
+    // Reset form
     this.newItem = {
       name: '',
       subtitle: 'Healthy • Fresh • Protein-rich',
@@ -169,10 +219,12 @@ export class AdminDashboard {
       defaultAddons: [],
       extraAddons: [],
     };
+    
+    this.showMenuForm = false;
   }
 
   deleteItem(id: number) {
-    if (confirm('Delete this item?')) {
+    if (confirm('Are you sure you want to delete this item?')) {
       this.menuService.delete(id);
       this.loadItems();
     }

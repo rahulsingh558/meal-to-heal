@@ -1,6 +1,7 @@
 import { Component, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { CartService } from '../../services/cart';
+import { Router } from '@angular/router';
 
 @Component({
   standalone: true,
@@ -9,6 +10,7 @@ import { CartService } from '../../services/cart';
 })
 export class Wishlist {
   isBrowser = false;
+  isLoggedIn = false;
 
   wishlist: {
     id: number;
@@ -18,11 +20,14 @@ export class Wishlist {
 
   constructor(
     private cartService: CartService,
+    private router: Router,
     @Inject(PLATFORM_ID) platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
 
     if (this.isBrowser) {
+      this.isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
       this.wishlist = JSON.parse(
         localStorage.getItem('wishlist') || '[]'
       );
@@ -43,7 +48,6 @@ export class Wishlist {
       totalPrice: item.basePrice,
     });
 
-    // ✅ remove from wishlist automatically
     this.remove(item.id);
   }
 
@@ -51,10 +55,11 @@ export class Wishlist {
     this.wishlist = this.wishlist.filter(item => item.id !== id);
 
     if (this.isBrowser) {
-      localStorage.setItem(
-        'wishlist',
-        JSON.stringify(this.wishlist)
-      );
+      localStorage.setItem('wishlist', JSON.stringify(this.wishlist));
     }
+  }
+
+  goToLogin() {
+    this.router.navigate(['/login']);
   }
 }

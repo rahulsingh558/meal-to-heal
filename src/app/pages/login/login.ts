@@ -98,7 +98,7 @@ export class Login {
     // Generate random 6-digit OTP
     this.generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
     
-    console.log(`OTP ${this.generatedOTP} sent to ${this.countryCode}${this.whatsappNumber}`);
+    // console.log(`OTP ${this.generatedOTP} sent to ${this.countryCode}${this.whatsappNumber}`);                        Console log for OTP
     
     // In production, you would send this OTP via WhatsApp API
     console.log(`DEMO: OTP is ${this.generatedOTP} - In production, this would be sent via WhatsApp`);
@@ -120,7 +120,6 @@ export class Login {
   resendOTP() {
     // Generate new OTP
     this.generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log(`New OTP ${this.generatedOTP} sent to ${this.countryCode}${this.whatsappNumber}`);
     
     // Reset timer
     this.resendTimer = 60;
