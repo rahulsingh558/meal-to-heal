@@ -1,8 +1,10 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
+import { adminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
-  // 🌍 PUBLIC PAGES
+  /* ================= PUBLIC PAGES ================= */
+
   {
     path: '',
     loadComponent: () =>
@@ -14,7 +16,7 @@ export const routes: Routes = [
       import('./pages/menu/menu').then(m => m.Menu),
   },
   {
-    path: 'cart', // ✅ CART IS PUBLIC
+    path: 'cart',
     loadComponent: () =>
       import('./pages/cart/cart').then(m => m.CartPage),
   },
@@ -29,7 +31,8 @@ export const routes: Routes = [
       import('./pages/contact/contact').then(m => m.Contact),
   },
 
-  // 🔒 PROTECTED PAGES
+  /* ================= USER PROTECTED ================= */
+
   {
     path: 'checkout',
     canActivate: [authGuard],
@@ -54,7 +57,25 @@ export const routes: Routes = [
       import('./pages/account/account').then(m => m.Account),
   },
 
-  // 🚫 FALLBACK
+  /* ================= ADMIN ================= */
+
+  // ✅ ADMIN LOGIN (NO GUARD)
+  {
+    path: 'admin/login',
+    loadComponent: () =>
+      import('./pages/admin/admin-login').then(m => m.AdminLogin),
+  },
+
+  // ✅ ADMIN DASHBOARD (GUARDED)
+  {
+    path: 'admin/dashboard',
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import('./pages/admin/admin-dashboard').then(m => m.AdminDashboard),
+  },
+
+  /* ================= FALLBACK ================= */
+
   {
     path: '**',
     redirectTo: '',
