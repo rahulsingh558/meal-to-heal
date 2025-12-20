@@ -74,7 +74,7 @@ export const routes: Routes = [
     path: 'admin/orders',
     // canActivate: [adminGuard],
     loadComponent: () =>
-      import('./pages/admin/orders/admin-orders').then(m => m.AdminOrdersComponent),
+      import('./pages/admin/admin-orders').then(m => m.AdminOrdersComponent),
   },
 
   /* ================= FALLBACK ================= */

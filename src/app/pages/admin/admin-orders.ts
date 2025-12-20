@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { AdminAuthService } from '../../../services/admin-auth.service';
+import { AdminAuthService } from '../../services/admin-auth.service';
 
 interface OrderItem {
   name: string;
