@@ -8,10 +8,10 @@
 
   <!-- Backdrop for mobile sidebar -->
   @if (isSidebarOpen) {
-      <div 
-        (click)="toggleSidebar()"
-        class="fixed inset-0 bg-gray-900/30 backdrop-blur-sm z-30 lg:hidden transition-opacity">
-      </div>
+    <div 
+      (click)="toggleSidebar()"
+      class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden">
+    </div>
   }
 
   <!-- Main Content Area -->

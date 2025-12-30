@@ -31,11 +31,6 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/contact/contact').then(m => m.Contact),
   },
-  {
-    path: '',
-    redirectTo: 'admin',
-    pathMatch: 'full'
-  },
 
   /* ================= USER PROTECTED ================= */
   {
@@ -74,6 +69,7 @@ export const routes: Routes = [
   
   {
     path: 'admin',
+    canActivate: [adminGuard],
     loadChildren: () => import('./pages/admin/admin.routes').then(m => m.adminRoutes)
   },
 
