@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { AdminAuthService } from '../../services/admin-auth.service';
+import { AdminAuthService } from '../../../services/admin-auth.service';
+import { AdminSidebarComponent } from '../sidebar/admin-sidebar.component';
 
 interface OrderItem {
   name: string;
@@ -34,7 +35,7 @@ interface Order {
 
 @Component({
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, AdminSidebarComponent], // Add AdminSidebarComponent here
   templateUrl: './admin-orders.html',
 })
 export class AdminOrdersComponent implements OnInit {

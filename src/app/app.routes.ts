@@ -2,8 +2,10 @@ import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
 import { adminGuard } from './guards/admin.guard';
 
+
 export const routes: Routes = [
   /* ================= PUBLIC PAGES ================= */
+  
   {
     path: '',
     loadComponent: () =>
@@ -28,6 +30,11 @@ export const routes: Routes = [
     path: 'contact',
     loadComponent: () =>
       import('./pages/contact/contact').then(m => m.Contact),
+  },
+  {
+    path: '',
+    redirectTo: 'admin',
+    pathMatch: 'full'
   },
 
   /* ================= USER PROTECTED ================= */
@@ -60,21 +67,14 @@ export const routes: Routes = [
   {
     path: 'admin/login',
     loadComponent: () =>
-      import('./pages/admin/admin-login').then(m => m.AdminLogin),
+      import('./pages/admin/auth/admin-login').then(m => m.AdminLogin),
   },
 
   // 🔐 ADMIN AREA (WITH LAYOUT) - IMPORTANT: Admin routes come BEFORE wildcard
+  
   {
-    path: 'admin/dashboard',
-    canActivate: [adminGuard],
-    loadComponent: () =>
-      import('./pages/admin/admin-dashboard').then(m => m.AdminDashboard),
-  },
-  {
-    path: 'admin/orders',
-    // canActivate: [adminGuard],
-    loadComponent: () =>
-      import('./pages/admin/admin-orders').then(m => m.AdminOrdersComponent),
+    path: 'admin',
+    loadChildren: () => import('./pages/admin/admin.routes').then(m => m.adminRoutes)
   },
 
   /* ================= FALLBACK ================= */

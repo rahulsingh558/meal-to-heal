@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { AdminAuthService } from '../../services/admin-auth.service';
+import { AdminAuthService } from '../../../services/admin-auth.service';
 
 @Component({
   standalone: true,

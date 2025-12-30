@@ -1,26 +1,17 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
 import {
   MenuAdminService,
   AdminMenuItem,
-} from '../../services/menu-admin.service';
-
-import { AdminAuthService } from '../../services/admin-auth.service';
-import { RouterModule } from '@angular/router';
+} from '../../../services/menu-admin.service';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './admin-dashboard.html',
 })
 export class AdminDashboard {
-  /* =========================
-     SIDEBAR STATE
-  ========================== */
-  isSidebarOpen = false;
-
   /* =========================
      MENU ITEMS
   ========================== */
@@ -115,8 +106,7 @@ export class AdminDashboard {
   ];
 
   constructor(
-    private menuService: MenuAdminService,
-    private auth: AdminAuthService
+    private menuService: MenuAdminService
   ) {
     /* Seed menu once */
     this.menuService.seedIfEmpty([
@@ -173,16 +163,6 @@ export class AdminDashboard {
 
     this.loadItems();
     this.buildRevenuePolyline();
-    
-    // On desktop, sidebar is open by default
-    this.isSidebarOpen = window.innerWidth >= 1024;
-  }
-
-  /* =========================
-     SIDEBAR METHODS
-  ========================== */
-  toggleSidebar() {
-    this.isSidebarOpen = !this.isSidebarOpen;
   }
 
   /* =========================
@@ -229,9 +209,5 @@ export class AdminDashboard {
       this.menuService.delete(id);
       this.loadItems();
     }
-  }
-
-  logout() {
-    this.auth.logout();
   }
 }
