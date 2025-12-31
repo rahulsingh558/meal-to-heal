@@ -1,7 +1,6 @@
-import { Component, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, Inject, PLATFORM_ID, HostListener } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-
 import { ClickOutsideDirective } from '../../directives/click-outside.directive';
 import { CartService } from '../../services/cart';
 
@@ -10,12 +9,42 @@ import { CartService } from '../../services/cart';
   selector: 'app-header',
   imports: [CommonModule, RouterLink, ClickOutsideDirective],
   templateUrl: './header.component.html',
+  styles: [`
+    .animate-scaleIn {
+      animation: scaleIn 0.2s ease-out;
+    }
+    
+    .animate-slideIn {
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes scaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+      }
+      to {
+        transform: translateX(0);
+      }
+    }
+  `]
 })
 export class HeaderComponent {
   showProfileMenu = false;
   mobileMenuOpen = false;
   cartCount = 0;
   isBrowser = false;
+  currentYear = new Date().getFullYear();
 
   constructor(
     private cartService: CartService,
@@ -31,8 +60,27 @@ export class HeaderComponent {
     }
   }
 
+  @HostListener('document:keydown.escape')
+  onEscapeKey() {
+    this.closeProfileMenu();
+    this.closeMobileMenu();
+  }
+
+  @HostListener('window:resize')
+  onResize() {
+    // Close menus on resize to avoid layout issues
+    if (window.innerWidth >= 768) {
+      this.closeMobileMenu();
+    } else {
+      this.closeProfileMenu();
+    }
+  }
+
   toggleProfileMenu() {
     this.showProfileMenu = !this.showProfileMenu;
+    if (this.showProfileMenu) {
+      this.mobileMenuOpen = false;
+    }
   }
 
   closeProfileMenu() {
@@ -41,6 +89,9 @@ export class HeaderComponent {
 
   toggleMobileMenu() {
     this.mobileMenuOpen = !this.mobileMenuOpen;
+    if (this.mobileMenuOpen) {
+      this.showProfileMenu = false;
+    }
   }
 
   closeMobileMenu() {
@@ -58,9 +109,20 @@ export class HeaderComponent {
     return localStorage.getItem('isLoggedIn') === 'true';
   }
 
+  getUserName(): string | null {
+    if (!this.isBrowser) return null;
+    return localStorage.getItem('userName');
+  }
+
+  isMobileView(): boolean {
+    if (!this.isBrowser) return false;
+    return window.innerWidth < 768;
+  }
+
   logout() {
     if (!this.isBrowser) return;
     localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userName');
     this.closeProfileMenu();
     this.closeMobileMenu();
     this.router.navigate(['/login']);
