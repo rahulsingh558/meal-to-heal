@@ -14,14 +14,18 @@
     <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
       <a routerLink="/menu" class="hover:text-green-600 transition-colors">Menu</a>
 
-      <a routerLink="/cart" class="relative hover:text-green-600 transition-colors">
-        Cart
-        <span
-          *ngIf="cartCount > 0"
-          class="absolute -top-2 -right-3 bg-red-500 text-white text-xs
-                 w-5 h-5 flex items-center justify-center rounded-full">
-          {{ cartCount }}
-        </span>
+      <!-- CART WITH ICON -->
+      <a routerLink="/cart" class="relative hover:text-green-600 transition-colors flex items-center gap-2">
+        <div class="relative">
+          <span class="text-lg">🛒</span>
+          <span
+            *ngIf="cartCount > 0"
+            class="absolute -top-2 -right-3 bg-red-500 text-white text-xs
+                   w-5 h-5 flex items-center justify-center rounded-full">
+            {{ cartCount }}
+          </span>
+        </div>
+        <span>Cart</span>
       </a>
 
       <!-- PROFILE BUTTON CONTAINER -->
@@ -76,7 +80,6 @@
                 class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors group">
                 <span class="text-red-400 group-hover:scale-110 transition-transform">❤️</span>
                 <span>Wishlist</span>
-                <span class="ml-auto text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">12</span>
               </a>
               
               <a 
@@ -145,8 +148,21 @@
       </div>
     </nav>
 
-    <!-- MOBILE MENU BUTTON -->
-    <button class="md:hidden text-green-700" (click)="toggleMobileMenu()">☰</button>
+    <!-- MOBILE MENU BUTTON WITH CART ICON -->
+    <div class="md:hidden flex items-center gap-4">
+      <!-- CART ICON FOR MOBILE -->
+      <a routerLink="/cart" class="relative">
+        <span class="text-xl text-green-700">🛒</span>
+        <span
+          *ngIf="cartCount > 0"
+          class="absolute -top-2 -right-3 bg-red-500 text-white text-xs
+                 w-5 h-5 flex items-center justify-center rounded-full">
+          {{ cartCount }}
+        </span>
+      </a>
+      
+      <button class="text-green-700" (click)="toggleMobileMenu()">☰</button>
+    </div>
   </div>
 
   <!-- PROFILE OVERLAY MODAL (ONLY FOR MOBILE VIEW) -->
@@ -378,6 +394,16 @@
 
         <ng-template #mobileLoggedOut>
           <!-- Mobile-specific guest options -->
+          <div class="border-t my-2 mx-6"></div>
+          
+          <a 
+            routerLink="/wishlist" 
+            (click)="closeMobileMenu()"
+            class="flex items-center gap-3 px-6 py-4 hover:bg-green-50 transition-colors">
+            <span class="text-red-400">❤️</span>
+            <span>Wishlist</span>
+          </a>
+          
           <div class="border-t my-2 mx-6"></div>
           
           <a 

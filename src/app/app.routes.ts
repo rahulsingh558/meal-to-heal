@@ -1,6 +1,10 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
 import { adminGuard } from './guards/admin.guard';
+import { AddressSelectComponent } from './components/address-select/address-select.component';
+import { PaymentComponent } from './components/payment/payment.component';
+import { OrderSuccessComponent } from './components/order-success/order-success.component';
+
 
 
 export const routes: Routes = [
@@ -38,6 +42,15 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () =>
       import('./pages/checkout/checkout').then(m => m.Checkout),
+  },
+  { 
+    path: 'address-select', component: AddressSelectComponent 
+  },
+  { 
+    path: 'payment', component: PaymentComponent 
+  },
+  { 
+    path: 'order-success', component: OrderSuccessComponent 
   },
   {
     path: 'orders',

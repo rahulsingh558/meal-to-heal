@@ -6,6 +6,17 @@ import { Food } from '../../models/food';
 import { Addon } from '../../models/addon';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCartPlus } from '@fortawesome/free-solid-svg-icons';
+import { ChatWidgetComponent } from '../../components/chat/chat.component';
+
+@Component({
+  standalone: true,
+  imports: [ChatWidgetComponent],
+  template: `
+    <!-- Your existing page content -->
+    <app-chat-widget></app-chat-widget>
+  `
+})
+export class YourPageComponent {}
 
 type FoodType = 'veg' | 'egg' | 'nonveg';
 

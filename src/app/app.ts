@@ -5,17 +5,27 @@ import { filter } from 'rxjs/operators';
 
 import { HeaderComponent } from './layout/header/header.component';
 import { FooterComponent } from './layout/footer/footer.component';
+import { ChatWidgetComponent } from './components/chat/chat.component';
 
 @Component({
-  standalone: true,
   selector: 'app-root',
+  standalone: true,
   imports: [
     CommonModule,
     RouterOutlet,
     HeaderComponent,
     FooterComponent,
+    ChatWidgetComponent,
   ],
-  templateUrl: './app.html',
+  template: `
+    <app-header *ngIf="showLayout"></app-header>
+    
+    <router-outlet></router-outlet>
+    
+    <app-footer *ngIf="showLayout"></app-footer>
+    
+    <app-chat-widget></app-chat-widget>
+  `
 })
 export class App {
   isBrowser = false;

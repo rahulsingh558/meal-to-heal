@@ -3,6 +3,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { CartService } from '../../services/cart';
 import { Router } from '@angular/router';
 
+
 @Component({
   standalone: true,
   imports: [CommonModule],

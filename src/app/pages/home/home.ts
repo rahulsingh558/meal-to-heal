@@ -10,6 +10,17 @@ import { CommonModule } from '@angular/common';
 import { isPlatformBrowser } from '@angular/common';
 import { CartService } from '../../services/cart';
 import { ProductsCarouselComponent } from '../../components/products-carousel/products-carousel.component';
+import { ChatWidgetComponent } from '../../components/chat/chat.component';
+
+@Component({
+  standalone: true,
+  imports: [ChatWidgetComponent],
+  template: `
+    <!-- Your existing page content -->
+    <app-chat-widget></app-chat-widget>
+  `
+})
+export class YourPageComponent {}
 
 
 
