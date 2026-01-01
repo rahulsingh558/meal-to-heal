@@ -1,59 +1,51 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
-import { ChatMessage, ChatContact, QuickReply } from '../models/chat';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { ChatMessage, ChatContact, QuickReply, ChatSession, AdminUser } from '../models/chat';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChatService {
-  private messagesSubject: BehaviorSubject<ChatMessage[]>;
-  private contactsSubject: BehaviorSubject<ChatContact[]>;
-  private unreadCountSubject: BehaviorSubject<number>;
+  private sessionsSubject: BehaviorSubject<ChatSession[]>;
+  private adminUsersSubject: BehaviorSubject<AdminUser[]>;
   private isChatOpenSubject: BehaviorSubject<boolean>;
   private isBrowser = false;
 
-  private storageKey = 'chatMessages';
-  private contactsStorageKey = 'chatContacts';
+  private sessionsStorageKey = 'chatSessions';
+  private adminKey = 'adminUsers';
+  private userMessagesKey = 'userMessages_';
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {
     this.isBrowser = isPlatformBrowser(this.platformId);
     
     // Initialize with sample data
-    let initialMessages: ChatMessage[] = [];
-    let initialContacts: ChatContact[] = [];
+    let initialSessions: ChatSession[] = [];
+    let initialAdmins: AdminUser[] = [];
     
     if (this.isBrowser) {
-      const savedMessages = localStorage.getItem(this.storageKey);
-      const savedContacts = localStorage.getItem(this.contactsStorageKey);
+      const savedSessions = localStorage.getItem(this.sessionsStorageKey);
+      const savedAdmins = localStorage.getItem(this.adminKey);
       
-      initialMessages = savedMessages ? JSON.parse(savedMessages) : this.getSampleMessages();
-      initialContacts = savedContacts ? JSON.parse(savedContacts) : this.getSampleContacts();
+      initialSessions = savedSessions ? JSON.parse(savedSessions) : this.getSampleSessions();
+      initialAdmins = savedAdmins ? JSON.parse(savedAdmins) : this.getSampleAdmins();
     } else {
-      initialMessages = this.getSampleMessages();
-      initialContacts = this.getSampleContacts();
+      initialSessions = this.getSampleSessions();
+      initialAdmins = this.getSampleAdmins();
     }
     
-    this.messagesSubject = new BehaviorSubject<ChatMessage[]>(initialMessages);
-    this.contactsSubject = new BehaviorSubject<ChatContact[]>(initialContacts);
-    this.unreadCountSubject = new BehaviorSubject<number>(
-      initialMessages.filter(m => !m.isRead && m.sender === 'agent').length
-    );
+    this.sessionsSubject = new BehaviorSubject<ChatSession[]>(initialSessions);
+    this.adminUsersSubject = new BehaviorSubject<AdminUser[]>(initialAdmins);
     this.isChatOpenSubject = new BehaviorSubject<boolean>(false);
   }
 
   // Observables
-  get messages$(): Observable<ChatMessage[]> {
-    return this.messagesSubject.asObservable();
+  get sessions$(): Observable<ChatSession[]> {
+    return this.sessionsSubject.asObservable();
   }
 
-  get contacts$(): Observable<ChatContact[]> {
-    return this.contactsSubject.asObservable();
-  }
-
-  get unreadCount$(): Observable<number> {
-    return this.unreadCountSubject.asObservable();
+  get adminUsers$(): Observable<AdminUser[]> {
+    return this.adminUsersSubject.asObservable();
   }
 
   get isChatOpen$(): Observable<boolean> {
@@ -61,53 +53,129 @@ export class ChatService {
   }
 
   // Get current values
-  getMessages(): ChatMessage[] {
-    return this.messagesSubject.getValue();
+  getSessions(): ChatSession[] {
+    return this.sessionsSubject.getValue();
   }
 
-  getUnreadCount(): number {
-    return this.unreadCountSubject.getValue();
+  // Get messages for current user
+  getUserMessages(userId: string): ChatMessage[] {
+    if (!this.isBrowser) return [];
+    
+    const key = this.userMessagesKey + userId;
+    const savedMessages = localStorage.getItem(key);
+    return savedMessages ? JSON.parse(savedMessages) : [];
   }
 
-  // Send message
-  sendMessage(content: string): void {
+  // Add this method to chat.service.ts
+syncUserMessages(userId: string): void {
+  if (!this.isBrowser) return;
+  
+  const key = this.userMessagesKey + userId;
+  const savedMessages = localStorage.getItem(key);
+  
+  if (savedMessages) {
+    const messages: ChatMessage[] = JSON.parse(savedMessages);
+    
+    // Make sure each message has the correct sender
+    const updatedMessages = messages.map(msg => {
+      // If message has userId and sender is not set, set it to 'user'
+      if (msg.userId && !msg.sender) {
+        return { ...msg, sender: 'user' as const };
+      }
+      return msg;
+    });
+    
+    // Save back
+    localStorage.setItem(key, JSON.stringify(updatedMessages));
+  }
+}
+
+  // Send message from user
+  sendUserMessage(content: string, userName?: string): void {
+    const userId = this.getOrCreateUserId();
+    const sessionId = 'session_' + userId;
+    const userMessages = this.getUserMessages(userId);
+
     const newMessage: ChatMessage = {
       id: Date.now(),
+      sessionId: sessionId,
       sender: 'user',
       content,
       timestamp: new Date(),
-      isRead: true
+      isRead: false,
+      userId: userId,
+      userName: userName || 'User'
     };
 
-    const currentMessages = this.getMessages();
-    const updatedMessages = [...currentMessages, newMessage];
-    
-    this.updateMessages(updatedMessages);
+    // Save to user's local storage
+    const updatedUserMessages = [...userMessages, newMessage];
+    this.saveUserMessages(userId, updatedUserMessages);
 
-    // Simulate agent response
-    this.simulateAgentResponse();
+    // Update or create session for admin view
+    this.updateUserSession(userId, userName || 'User', newMessage, sessionId);
   }
 
-  // Send quick reply
+// In chat.service.ts, update the sendAdminMessage method:
+
+// Send message from admin to specific session
+sendAdminMessage(content: string, sessionId: string): void {
+  const sessions = this.getSessions();
+  const session = sessions.find(s => s.id === sessionId);
+  
+  if (!session) return;
+
+  const newMessage: ChatMessage = {
+    id: Date.now(),
+    sessionId: sessionId,
+    sender: 'admin', // Make sure this is 'admin' not 'user'
+    content,
+    timestamp: new Date(),
+    isRead: true,
+    userId: session.userId, // Add userId to link to user
+    userName: session.userName // Add userName
+  };
+
+  // Update session
+  const updatedSession: ChatSession = {
+    ...session,
+    messages: [...session.messages, newMessage],
+    lastActive: new Date()
+  };
+
+  const updatedSessions = sessions.map(s => 
+    s.id === sessionId ? updatedSession : s
+  );
+  
+  this.updateSessions(updatedSessions);
+
+  // Also save to user's messages - THIS IS CRITICAL
+  const userId = session.userId;
+  const userMessages = this.getUserMessages(userId);
+  
+  // Make sure the message has sender: 'admin'
+  const userAdminMessage: ChatMessage = {
+    ...newMessage,
+    sender: 'admin' // Explicitly set to admin
+  };
+  
+  const updatedUserMessages = [...userMessages, userAdminMessage];
+  this.saveUserMessages(userId, updatedUserMessages);
+}
+
+  // Send quick reply from user
   sendQuickReply(text: string): void {
-    this.sendMessage(text);
+    this.sendUserMessage(text);
   }
 
   // Toggle chat window
   toggleChat(): void {
     const currentState = this.isChatOpenSubject.getValue();
     this.isChatOpenSubject.next(!currentState);
-    
-    // Mark messages as read when opening chat
-    if (!currentState) {
-      this.markAllAsRead();
-    }
   }
 
   // Open chat
   openChat(): void {
     this.isChatOpenSubject.next(true);
-    this.markAllAsRead();
   }
 
   // Close chat
@@ -115,16 +183,52 @@ export class ChatService {
     this.isChatOpenSubject.next(false);
   }
 
-  // Mark all messages as read
-  markAllAsRead(): void {
-    const messages = this.getMessages();
-    const updatedMessages = messages.map(msg => ({
-      ...msg,
-      isRead: true
-    }));
+  // Mark session as resolved
+  markSessionResolved(sessionId: string): void {
+    const sessions = this.getSessions();
+    const updatedSessions = sessions.map(session => {
+      if (session.id === sessionId) {
+        return { 
+          ...session, 
+          status: 'resolved' as const
+        };
+      }
+      return session;
+    });
     
-    this.updateMessages(updatedMessages);
-    this.unreadCountSubject.next(0);
+    this.updateSessions(updatedSessions);
+  }
+
+  // Assign session to admin
+  assignSessionToAdmin(sessionId: string, adminName: string): void {
+    const sessions = this.getSessions();
+    const updatedSessions = sessions.map(session => {
+      if (session.id === sessionId) {
+        return { 
+          ...session, 
+          assignedTo: adminName, 
+          status: 'active' as const
+        };
+      }
+      return session;
+    });
+    
+    this.updateSessions(updatedSessions);
+  }
+
+  // Get active sessions
+  getActiveSessions(): ChatSession[] {
+    return this.getSessions().filter(session => session.status === 'active');
+  }
+
+  // Get pending sessions
+  getPendingSessions(): ChatSession[] {
+    return this.getSessions().filter(session => session.status === 'pending');
+  }
+
+  // Get resolved sessions
+  getResolvedSessions(): ChatSession[] {
+    return this.getSessions().filter(session => session.status === 'resolved');
   }
 
   // Get quick replies
@@ -150,114 +254,221 @@ export class ChatService {
     ];
   }
 
-  // Simulate agent response
-  private simulateAgentResponse(): void {
-    setTimeout(() => {
-      const responses = [
-        "I'm checking that for you...",
-        "Thanks for your message! Our team will get back to you shortly.",
-        "I can help with that. Let me look into your order.",
-        "Please share your order ID for faster assistance.",
-        "Our delivery partner is on the way to your location.",
-      ];
-      
-      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-      
-      const agentMessage: ChatMessage = {
-        id: Date.now() + 1,
-        sender: 'agent',
-        content: randomResponse,
-        timestamp: new Date(),
-        isRead: this.isChatOpenSubject.getValue()
-      };
-
-      const currentMessages = this.getMessages();
-      const updatedMessages = [...currentMessages, agentMessage];
-      
-      this.updateMessages(updatedMessages);
-      
-      // Update unread count if chat is closed
-      if (!this.isChatOpenSubject.getValue()) {
-        const unreadCount = updatedMessages.filter(m => !m.isRead && m.sender === 'agent').length;
-        this.unreadCountSubject.next(unreadCount);
-      }
-    }, 1500);
+  // Get canned responses for admin
+  getCannedResponses(): string[] {
+    return [
+      'Thanks for reaching out! How can I help you today?',
+      'Your order is being prepared and will be delivered in 25-30 minutes.',
+      'I apologize for the inconvenience. Let me check and get back to you.',
+      'Could you please share your order ID for faster assistance?',
+      'Our delivery partner is on the way to your location.',
+      'I understand your concern. Let me escalate this to our team.',
+      'We appreciate your patience. Your issue is being looked into.',
+      'Is there anything else I can help you with?',
+    ];
   }
 
-  // Update messages and save to localStorage
-  private updateMessages(messages: ChatMessage[]): void {
-    this.messagesSubject.next(messages);
+  // Update admin status
+  updateAdminStatus(adminId: string, isOnline: boolean): void {
+    const admins = this.adminUsersSubject.getValue();
+    const updatedAdmins = admins.map(admin => {
+      if (admin.id === adminId) {
+        return { ...admin, isOnline };
+      }
+      return admin;
+    });
     
-    if (this.isBrowser) {
-      localStorage.setItem(this.storageKey, JSON.stringify(messages));
+    this.adminUsersSubject.next(updatedAdmins);
+    this.saveToLocalStorage(this.adminKey, updatedAdmins);
+  }
+
+  // Get unread count for a specific user
+  getUserUnreadCount(userId: string): number {
+    const userMessages = this.getUserMessages(userId);
+    return userMessages.filter(msg => !msg.isRead && msg.sender === 'admin').length;
+  }
+
+  // Mark user messages as read
+  markUserMessagesAsRead(userId: string): void {
+    const userMessages = this.getUserMessages(userId);
+    const updatedMessages = userMessages.map(msg => ({
+      ...msg,
+      isRead: true
+    }));
+    this.saveUserMessages(userId, updatedMessages);
+  }
+
+  // Private methods
+  private getOrCreateUserId(): string {
+    if (!this.isBrowser) return 'anonymous_user_' + Date.now();
+    
+    let userId = localStorage.getItem('chatUserId');
+    if (!userId) {
+      userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('chatUserId', userId);
+    }
+    return userId;
+  }
+
+  private updateUserSession(userId: string, userName: string, message: ChatMessage, sessionId: string): void {
+    const sessions = this.getSessions();
+    
+    // Find existing session for user
+    let session = sessions.find(s => s.userId === userId);
+    
+    if (!session) {
+      // Create new session
+      const newSession: ChatSession = {
+        id: sessionId,
+        userId: userId,
+        userName: userName,
+        messages: [message],
+        lastActive: new Date(),
+        status: 'pending' as const,
+        createdAt: new Date()
+      };
+      
+      const updatedSessions = [...sessions, newSession];
+      this.updateSessions(updatedSessions);
+    } else {
+      // Update existing session
+      const updatedMessages = [...session.messages, message];
+      const updatedSession: ChatSession = {
+        ...session,
+        messages: updatedMessages,
+        lastActive: new Date(),
+        status: session.status === 'resolved' ? 'pending' as const : session.status
+      };
+      
+      const updatedSessions = sessions.map(s => 
+        s.id === session!.id ? updatedSession : s
+      );
+      
+      this.updateSessions(updatedSessions);
     }
   }
 
-  // Sample messages
-  private getSampleMessages(): ChatMessage[] {
+  private updateSessions(sessions: ChatSession[]): void {
+    this.sessionsSubject.next(sessions);
+    this.saveToLocalStorage(this.sessionsStorageKey, sessions);
+  }
+
+  private saveUserMessages(userId: string, messages: ChatMessage[]): void {
+    if (this.isBrowser) {
+      const key = this.userMessagesKey + userId;
+      localStorage.setItem(key, JSON.stringify(messages));
+    }
+  }
+
+  private saveToLocalStorage(key: string, data: any): void {
+    if (this.isBrowser) {
+      localStorage.setItem(key, JSON.stringify(data));
+    }
+  }
+
+  // Sample data
+  private getSampleSessions(): ChatSession[] {
     const now = new Date();
-    const fiveMinutesAgo = new Date(now.getTime() - 5 * 60000);
-    const tenMinutesAgo = new Date(now.getTime() - 10 * 60000);
+    const oneHourAgo = new Date(now.getTime() - 60 * 60000);
+    const twoHoursAgo = new Date(now.getTime() - 120 * 60000);
     
     return [
       {
-        id: 1,
-        sender: 'agent',
-        content: 'Hello! Welcome to Meal to Heal support. How can I help you today?',
-        timestamp: tenMinutesAgo,
-        isRead: true
+        id: 'session_user_123',
+        userId: 'user_123',
+        userName: 'John Doe',
+        userEmail: 'john@example.com',
+        userPhone: '9876543210',
+        messages: [
+          { 
+            id: 1, 
+            sessionId: 'session_user_123',
+            sender: 'user' as const, 
+            content: 'Hi, I need help with my order', 
+            timestamp: twoHoursAgo, 
+            isRead: true 
+          },
+          { 
+            id: 2, 
+            sessionId: 'session_user_123',
+            sender: 'admin' as const, 
+            content: 'Sure, how can I help?', 
+            timestamp: oneHourAgo, 
+            isRead: true 
+          }
+        ],
+        lastActive: oneHourAgo,
+        status: 'active' as const,
+        assignedTo: 'Admin User',
+        createdAt: twoHoursAgo
       },
       {
-        id: 2,
-        sender: 'user',
-        content: 'Hi, I want to track my order #ORD-123456',
-        timestamp: fiveMinutesAgo,
-        isRead: true
+        id: 'session_user_456',
+        userId: 'user_456',
+        userName: 'Jane Smith',
+        userEmail: 'jane@example.com',
+        messages: [
+          { 
+            id: 3, 
+            sessionId: 'session_user_456',
+            sender: 'user' as const, 
+            content: 'My food was delivered cold', 
+            timestamp: new Date(now.getTime() - 30 * 60000), 
+            isRead: false 
+          }
+        ],
+        lastActive: new Date(now.getTime() - 30 * 60000),
+        status: 'pending' as const,
+        createdAt: new Date(now.getTime() - 30 * 60000)
       },
       {
-        id: 3,
-        sender: 'agent',
-        content: 'Your order is being prepared and will be delivered in 25-30 minutes. You can track it from your orders page.',
-        timestamp: now,
-        isRead: false
+        id: 'session_user_789',
+        userId: 'user_789',
+        userName: 'Robert Johnson',
+        userPhone: '9876543211',
+        messages: [
+          { 
+            id: 4, 
+            sessionId: 'session_user_789',
+            sender: 'user' as const, 
+            content: 'Thanks for the help!', 
+            timestamp: new Date(now.getTime() - 180 * 60000), 
+            isRead: true 
+          },
+          { 
+            id: 5, 
+            sessionId: 'session_user_789',
+            sender: 'admin' as const, 
+            content: 'You\'re welcome!', 
+            timestamp: new Date(now.getTime() - 179 * 60000), 
+            isRead: true 
+          }
+        ],
+        lastActive: new Date(now.getTime() - 179 * 60000),
+        status: 'resolved' as const,
+        assignedTo: 'Admin User',
+        createdAt: new Date(now.getTime() - 180 * 60000)
       }
     ];
   }
 
-  // Sample contacts
-  private getSampleContacts(): ChatContact[] {
-    const now = new Date();
-    
+  private getSampleAdmins(): AdminUser[] {
     return [
       {
-        id: 1,
-        name: 'Customer Support',
+        id: 'admin_1',
+        name: 'Admin User',
         avatar: '👨‍💼',
-        lastMessage: 'How can I help you today?',
-        timestamp: new Date(now.getTime() - 5 * 60000),
-        unreadCount: 0,
+        role: 'admin',
         isOnline: true,
-        role: 'customer_support'
+        activeChats: 2
       },
       {
-        id: 2,
-        name: 'Delivery Support',
-        avatar: '🚚',
-        lastMessage: 'Your order is out for delivery',
-        timestamp: new Date(now.getTime() - 30 * 60000),
-        unreadCount: 1,
-        isOnline: true,
-        role: 'delivery_support'
-      },
-      {
-        id: 3,
-        name: 'Billing Support',
-        avatar: '💰',
-        lastMessage: 'Payment processed successfully',
-        timestamp: new Date(now.getTime() - 120 * 60000),
-        unreadCount: 0,
+        id: 'admin_2',
+        name: 'Support Agent',
+        avatar: '👩‍💼',
+        role: 'support_agent',
         isOnline: false,
-        role: 'billing_support'
+        activeChats: 0
       }
     ];
   }

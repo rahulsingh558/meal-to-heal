@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { AdminLayoutComponent } from '../../components/admin-layout/admin-layout.component';
+import { AdminChatComponent } from './admin-chat/admin-chat.component';
 
 export const adminRoutes: Routes = [
   {
@@ -35,6 +36,10 @@ export const adminRoutes: Routes = [
         path: 'settings',
         loadComponent: () => import('./admin-settings/admin-settings').then(m => m.AdminSettingsComponent),
         title: 'Settings'
+      },
+      { 
+        path: 'admin/chat', 
+        component: AdminChatComponent,
       },
       {
         path: '',

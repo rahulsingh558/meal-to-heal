@@ -48,10 +48,18 @@
       <div *ngFor="let message of messages" 
            class="message" 
            [class.user]="message.sender === 'user'"
-           [class.agent]="message.sender === 'agent'">
+           [class.admin]="message.sender === 'admin'">
         
         <div class="message-content">
+          <!-- Sender Label -->
+          <div class="message-sender">
+            {{ getSenderLabel(message) }}
+          </div>
+          
+          <!-- Message Content -->
           {{ message.content }}
+          
+          <!-- Message Time -->
           <div class="message-time">
             {{ formatTime(message.timestamp) }}
           </div>
@@ -59,7 +67,7 @@
       </div>
 
       <!-- Typing Indicator -->
-      <div *ngIf="isTyping" class="message agent">
+      <div *ngIf="isTyping" class="message admin">
         <div class="typing-indicator">
           <div class="typing-dots">
             <span></span>
