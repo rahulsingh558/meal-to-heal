@@ -4,6 +4,7 @@ import { adminGuard } from './guards/admin.guard';
 import { AddressSelectComponent } from './components/address-select/address-select.component';
 import { PaymentComponent } from './components/payment/payment.component';
 import { OrderSuccessComponent } from './components/order-success/order-success.component';
+import { Signup } from './pages/signup/signup';
 
 
 
@@ -29,6 +30,12 @@ export const routes: Routes = [
     path: 'login',
     loadComponent: () =>
       import('./pages/login/login').then(m => m.Login),
+  },
+  { 
+    path: 'signup', component: Signup 
+  },
+  { 
+    path: 'register', redirectTo: 'signup' 
   },
   {
     path: 'contact',

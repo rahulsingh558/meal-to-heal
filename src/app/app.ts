@@ -7,6 +7,12 @@ import { HeaderComponent } from './layout/header/header.component';
 import { FooterComponent } from './layout/footer/footer.component';
 import { ChatWidgetComponent } from './components/chat/chat.component';
 
+import { provideHttpClient } from '@angular/common/http';
+
+export const appConfig = {
+  providers: [provideHttpClient()]
+};
+
 @Component({
   selector: 'app-root',
   standalone: true,
