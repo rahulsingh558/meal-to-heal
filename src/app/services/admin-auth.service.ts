@@ -1,147 +1,79 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { Observable, tap } from 'rxjs';
+
+interface LoginResponse {
+  token: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+  };
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdminAuthService {
-  // Use sessionStorage instead of localStorage for better security
-  private readonly ADMIN_SESSION_KEY = 'admin_session';
-  private readonly ADMIN_CREDENTIALS = {
-    username: 'admin',
-    password: 'admin123'
-  };
+  private readonly TOKEN_KEY = 'admin_token';
+  private readonly USER_KEY = 'admin_user';
+  private readonly API_URL = 'http://localhost:5001/api/auth';
 
-  constructor(private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router
+  ) { }
 
-  // Check if storage is available
-  private isStorageAvailable(): boolean {
-    try {
-      const testKey = '__test__';
-      sessionStorage.setItem(testKey, testKey);
-      sessionStorage.removeItem(testKey);
-      return true;
-    } catch (e) {
-      console.warn('Storage is not available:', e);
-      return false;
-    }
+  // Login with backend
+  login(email: string, password: string): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.API_URL}/login`, {
+      email,
+      password
+    }).pipe(
+      tap(response => {
+        // Store token and user data
+        localStorage.setItem(this.TOKEN_KEY, response.token);
+        localStorage.setItem(this.USER_KEY, JSON.stringify(response.user));
+      })
+    );
   }
 
-  // Login method
-  login(username: string, password: string): boolean {
-    console.log('Login attempt:', username);
-    
-    // Validate credentials
-    if (username === this.ADMIN_CREDENTIALS.username && 
-        password === this.ADMIN_CREDENTIALS.password) {
-      
-      // Create session data
-      const sessionData = {
-        isAuthenticated: true,
-        username: username,
-        timestamp: new Date().getTime(),
-        sessionId: this.generateSessionId()
-      };
-      
-      // Store session
-      if (this.isStorageAvailable()) {
-        sessionStorage.setItem(this.ADMIN_SESSION_KEY, JSON.stringify(sessionData));
-        console.log('Session stored:', sessionData);
-      } else {
-        console.warn('Storage not available, using in-memory session');
-        // Fallback to in-memory storage
-        (window as any).adminSession = sessionData;
-      }
-      
-      return true;
-    }
-    
-    console.log('Invalid credentials');
-    return false;
+  // Get stored token
+  getToken(): string | null {
+    return localStorage.getItem(this.TOKEN_KEY);
   }
 
-  // Generate random session ID
-  private generateSessionId(): string {
-    return 'session_' + Math.random().toString(36).substr(2, 9);
+  // Get stored user
+  getUser(): any {
+    const userStr = localStorage.getItem(this.USER_KEY);
+    return userStr ? JSON.parse(userStr) : null;
   }
 
   // Check if admin is logged in
   isLoggedIn(): boolean {
-    // Try to get session data
-    let sessionData: any = null;
-    
-    if (this.isStorageAvailable()) {
-      const data = sessionStorage.getItem(this.ADMIN_SESSION_KEY);
-      if (data) {
-        try {
-          sessionData = JSON.parse(data);
-        } catch (error) {
-          console.error('Error parsing session data:', error);
-        }
-      }
-    } else {
-      // Fallback to in-memory session
-      sessionData = (window as any).adminSession;
-    }
-
-    // Check if session exists and is valid
-    if (!sessionData || !sessionData.isAuthenticated) {
-      return false;
-    }
-
-    // Check session expiration (1 hour)
-    const currentTime = new Date().getTime();
-    const sessionAge = currentTime - sessionData.timestamp;
-    const maxSessionAge = 60 * 60 * 1000; // 1 hour in milliseconds
-
-    if (sessionAge > maxSessionAge) {
-      console.log('Session expired');
-      this.logout();
-      return false;
-    }
-
-    return true;
+    const token = this.getToken();
+    const user = this.getUser();
+    return !!(token && user && user.role === 'admin');
   }
 
   // Logout method
   logout(): void {
-    console.log('Logging out admin');
-    
-    if (this.isStorageAvailable()) {
-      sessionStorage.removeItem(this.ADMIN_SESSION_KEY);
-    }
-    
-    // Clear in-memory session
-    (window as any).adminSession = null;
-    
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.USER_KEY);
     this.router.navigate(['/admin/login']);
   }
 
   // Get current admin username
   getAdminUsername(): string {
-    let sessionData: any = null;
-    
-    if (this.isStorageAvailable()) {
-      const data = sessionStorage.getItem(this.ADMIN_SESSION_KEY);
-      if (data) {
-        try {
-          sessionData = JSON.parse(data);
-        } catch (error) {
-          return '';
-        }
-      }
-    } else {
-      sessionData = (window as any).adminSession;
-    }
-    
-    return sessionData?.username || '';
+    const user = this.getUser();
+    return user?.name || '';
   }
 
   // Clear all auth data
   clearAuth(): void {
-    if (this.isStorageAvailable()) {
-      sessionStorage.removeItem(this.ADMIN_SESSION_KEY);
-    }
-    (window as any).adminSession = null;
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.USER_KEY);
   }
 }

@@ -11,35 +11,48 @@ import { AdminAuthService } from '../../../services/admin-auth.service';
 })
 export class AdminLogin {
   showPass: boolean = false;
-  username = '';
+  email = '';
   password = '';
   error = '';
+  loading = false;
 
   constructor(
     private adminAuth: AdminAuthService,
     private router: Router
-  ) {}
+  ) { }
 
   login() {
     // Clear previous error
     this.error = '';
 
     // Validate inputs
-    if (!this.username || !this.password) {
-      this.error = 'Please enter username and password';
+    if (!this.email || !this.password) {
+      this.error = 'Please enter email and password';
       return;
     }
 
     // Attempt login
-    const isAuthenticated = this.adminAuth.login(this.username, this.password);
-    
-    if (isAuthenticated) {
-      console.log('Admin login successful');
-      this.router.navigate(['/admin/dashboard']);
-    } else {
-      this.error = 'Invalid admin credentials';
-      console.log('Admin login failed');
-    }
+    this.loading = true;
+    this.adminAuth.login(this.email, this.password).subscribe({
+      next: (response) => {
+        console.log('Admin login successful');
+
+        // Check if user is admin
+        if (response.user.role !== 'admin') {
+          this.error = 'Access denied. Admin privileges required.';
+          this.adminAuth.clearAuth();
+          this.loading = false;
+          return;
+        }
+
+        this.router.navigate(['/admin/dashboard']);
+      },
+      error: (err) => {
+        console.error('Admin login failed:', err);
+        this.error = err.error?.message || 'Invalid credentials';
+        this.loading = false;
+      }
+    });
   }
 
   // Optional: Handle Enter key press
