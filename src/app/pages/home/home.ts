@@ -8,7 +8,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { isPlatformBrowser } from '@angular/common';
-import { CartService } from '../../services/cart';
+import { CartService } from '../../services/cart.service';
 import { ProductsCarouselComponent } from '../../components/products-carousel/products-carousel.component';
 import { ChatWidgetComponent } from '../../components/chat/chat.component';
 
@@ -20,7 +20,7 @@ import { ChatWidgetComponent } from '../../components/chat/chat.component';
     <app-chat-widget></app-chat-widget>
   `
 })
-export class YourPageComponent {}
+export class YourPageComponent { }
 
 
 
@@ -54,7 +54,7 @@ interface Testimonial {
   standalone: true,
   templateUrl: './home.html',
   imports: [
-    RouterLink, 
+    RouterLink,
     CommonModule,
     ProductsCarouselComponent  // Add this
   ],
@@ -71,7 +71,7 @@ export class Home implements AfterViewInit {
   ========================== */
   activeBowlIndex = signal(0);
   isBowlAnimating = signal(false);
-  
+
   bowls: BowlType[] = [
     {
       type: 'sprouts',
@@ -115,7 +115,7 @@ export class Home implements AfterViewInit {
      CAROUSEL STATE
   ========================== */
   activeTestimonialIndex = signal(0);
-  
+
   testimonials: Testimonial[] = [
     {
       name: 'Priya Sharma',
@@ -188,27 +188,27 @@ export class Home implements AfterViewInit {
 
   nextBowl(): void {
     if (this.isBowlAnimating()) return;
-    
+
     this.isBowlAnimating.set(true);
     this.activeBowlIndex.update(current => (current + 1) % this.bowls.length);
-    
+
     setTimeout(() => this.isBowlAnimating.set(false), 600);
   }
 
   prevBowl(): void {
     if (this.isBowlAnimating()) return;
-    
+
     this.isBowlAnimating.set(true);
-    this.activeBowlIndex.update(current => 
+    this.activeBowlIndex.update(current =>
       current === 0 ? this.bowls.length - 1 : current - 1
     );
-    
+
     setTimeout(() => this.isBowlAnimating.set(false), 600);
   }
 
   goToBowl(index: number): void {
     if (this.isBowlAnimating() || index === this.activeBowlIndex()) return;
-    
+
     this.isBowlAnimating.set(true);
     this.activeBowlIndex.set(index);
     setTimeout(() => this.isBowlAnimating.set(false), 600);
@@ -218,7 +218,7 @@ export class Home implements AfterViewInit {
     const total = this.activeBowl.ingredients.length;
     const angle = (index * 360 / total) * (Math.PI / 180);
     const radius = 120;
-    
+
     return {
       left: `calc(50% + ${Math.cos(angle) * radius}px)`,
       top: `calc(50% + ${Math.sin(angle) * radius}px)`,
@@ -236,13 +236,13 @@ export class Home implements AfterViewInit {
      TESTIMONIAL CAROUSEL
   ========================== */
   nextTestimonial(): void {
-    this.activeTestimonialIndex.update(current => 
+    this.activeTestimonialIndex.update(current =>
       (current + 1) % this.testimonials.length
     );
   }
 
   prevTestimonial(): void {
-    this.activeTestimonialIndex.update(current => 
+    this.activeTestimonialIndex.update(current =>
       current === 0 ? this.testimonials.length - 1 : current - 1
     );
   }
@@ -268,12 +268,14 @@ export class Home implements AfterViewInit {
     basePrice: number;
   }) {
     this.cartService.addToCart({
-      foodId: food.foodId,
+      menuItemId: String(food.foodId),
       name: food.name,
-      basePrice: food.basePrice,
-      addons: [],
+      price: food.basePrice,
       quantity: 1,
-      totalPrice: food.basePrice,
+      customizations: [],
+    }).subscribe({
+      next: (res: any) => console.log('Added to cart from home', res),
+      error: (err: any) => console.error('Error adding to cart from home', err)
     });
   }
 

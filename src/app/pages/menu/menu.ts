@@ -1,6 +1,6 @@
 import { Component, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { CartService } from '../../services/cart';
+import { CartService } from '../../services/cart.service';
 import { FoodApiService, ApiFood } from '../../services/food-api.service';
 import { Food } from '../../models/food';
 import { Addon } from '../../models/addon';
@@ -26,7 +26,7 @@ interface MenuFood extends Food {
 @Component({
   standalone: true,
   selector: 'app-menu',
-  imports: [CommonModule, FontAwesomeModule, ChatWidgetComponent],
+  imports: [CommonModule, FontAwesomeModule],
   templateUrl: './menu.html',
 })
 export class Menu {
@@ -232,13 +232,16 @@ export class Menu {
 
   confirmAddToCart() {
     this.cartService.addToCart({
-      foodId: this.selectedFood.id,
+      menuItemId: String(this.selectedFood.id),
       name: this.selectedFood.name,
-      basePrice: this.selectedFood.basePrice,
-      addons: [...this.modalSelectedFreeAddons, ...this.modalSelectedPremiumAddons],
+      price: this.modalTotal,
       quantity: 1,
-      totalPrice: this.modalTotal,
+      customizations: [...this.modalSelectedFreeAddons, ...this.modalSelectedPremiumAddons]
+    }).subscribe({
+      next: (res: any) => console.log('Added to cart', res),
+      error: (err: any) => console.error('Error adding to cart', err)
     });
+
     this.closeAddonPopup();
   }
 }

@@ -1,0 +1,167 @@
+<div class="auth-page">
+    <div class="auth-container" [class.right-panel-active]="isSignUp">
+
+        <!-- Sign Up Container -->
+        <div class="form-container sign-up-container" [class.active-sign-up]="isSignUp">
+            <form (ngSubmit)="signup()" class="auth-form">
+                <h1 class="auth-title">Create Account</h1>
+
+                <!-- Social Icons -->
+                <div class="social-buttons">
+                    <button type="button" (click)="authWithGoogle()" class="social-btn">
+                        <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google">
+                    </button>
+                    <button type="button" (click)="openWhatsAppModal()" class="social-btn">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+                    </button>
+                </div>
+
+                <span class="auth-subtitle">or use your email for registration</span>
+
+                <input type="text" [(ngModel)]="signupName" name="name" placeholder="Name" class="auth-input" />
+                <input type="email" [(ngModel)]="signupEmail" name="email" placeholder="Email" class="auth-input" />
+                <input type="tel" [(ngModel)]="signupPhone" name="phone" placeholder="Phone Number"
+                    class="auth-input" />
+                <input type="password" [(ngModel)]="signupPassword" name="password" placeholder="Password"
+                    class="auth-input" />
+                <input type="password" [(ngModel)]="signupConfirmPassword" name="confirmPassword"
+                    placeholder="Confirm Password" class="auth-input" />
+
+                <div class="terms-row">
+                    <input type="checkbox" [(ngModel)]="signupAcceptTerms" name="acceptTerms" id="terms">
+                    <label for="terms">I agree to the Terms & Conditions</label>
+                </div>
+
+                @if (signupError) {
+                <p class="error-text">{{ signupError }}</p>
+                }
+
+                <button type="submit" class="auth-btn">Sign Up</button>
+            </form>
+        </div>
+
+        <!-- Sign In Container -->
+        <div class="form-container sign-in-container" [class.inactive-sign-in]="isSignUp">
+            <form (ngSubmit)="login()" class="auth-form">
+                <h1 class="auth-title">Sign in</h1>
+
+                <!-- Social Icons -->
+                <div class="social-buttons">
+                    <button type="button" (click)="authWithGoogle()" class="social-btn">
+                        <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google">
+                    </button>
+                    <button type="button" (click)="openWhatsAppModal()" class="social-btn">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+                    </button>
+                </div>
+
+                <span class="auth-subtitle">or use your account</span>
+
+                <input type="text" [(ngModel)]="loginEmail" name="email" placeholder="Email or Phone"
+                    class="auth-input" />
+                <input type="password" [(ngModel)]="loginPassword" name="password" placeholder="Password"
+                    class="auth-input" />
+
+                <a routerLink="/forgot-password" class="forgot-link">Forgot your password?</a>
+
+                @if (loginError) {
+                <p class="error-text">{{ loginError }}</p>
+                }
+
+                <button type="submit" class="auth-btn">Sign In</button>
+            </form>
+        </div>
+
+        <!-- Overlay Container -->
+        <div class="overlay-container" [class.overlay-active]="isSignUp">
+            <div class="overlay" [class.overlay-slide]="isSignUp">
+
+                <!-- Overlay Left -->
+                <div class="overlay-panel overlay-left" [class.panel-active]="isSignUp">
+                    <h1>Welcome Back!</h1>
+                    <p>To keep connected with us please login with your personal info</p>
+                    <button class="ghost-btn" (click)="toggleAuthMode(false)">Sign In</button>
+                </div>
+
+                <!-- Overlay Right -->
+                <div class="overlay-panel overlay-right" [class.panel-active]="!isSignUp">
+                    <h1>Hello, Friend!</h1>
+                    <p>Enter your personal details and start journey with us</p>
+                    <button class="ghost-btn" (click)="toggleAuthMode(true)">Sign Up</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- WhatsApp OTP Modal -->
+@if (showWhatsAppModal) {
+<div class="modal-overlay">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3>Login with WhatsApp</h3>
+            <button (click)="closeWhatsAppModal()" class="modal-close">&times;</button>
+        </div>
+
+        <!-- Phone Input Step -->
+        @if (!otpSent) {
+        <div class="modal-body">
+            <p class="modal-desc">Enter your WhatsApp number to receive an OTP.</p>
+            <div class="phone-input-row">
+                <span class="country-code">{{countryCode}}</span>
+                <input type="tel" [(ngModel)]="whatsappNumber" placeholder="WhatsApp Number" class="phone-input"
+                    maxlength="10">
+            </div>
+
+            @if (otpError) {
+            <p class="error-text">{{ otpError }}</p>
+            }
+
+            <button (click)="requestOTP()" [disabled]="!whatsappNumber || whatsappNumber.length < 10"
+                class="whatsapp-btn">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" class="whatsapp-icon"
+                    alt="">
+                Send OTP
+            </button>
+        </div>
+        }
+
+        <!-- OTP Input Step -->
+        @if (otpSent) {
+        <div class="modal-body">
+            <div class="otp-header">
+                <p class="modal-desc">Enter the 6-digit code sent to</p>
+                <p class="otp-phone">{{countryCode}} {{whatsappNumber}}</p>
+                <button (click)="resetWhatsAppForm()" class="change-number-btn">Change Number</button>
+            </div>
+
+            <div class="otp-inputs">
+                @for (digit of otp; track i; let i = $index) {
+                <input type="text" maxlength="1" class="otp-input" [value]="digit" (input)="onOtpInput($event, i)"
+                    (keydown)="onOtpKeyDown($event, i)" (paste)="onOtpPaste($event)" #otpInput>
+                }
+            </div>
+
+            @if (otpError) {
+            <p class="error-text text-center">{{ otpError }}</p>
+            }
+
+            <div class="otp-actions">
+                <button (click)="verifyOTP()" [disabled]="!isOtpComplete()" class="verify-btn">
+                    Verify & Proceed
+                </button>
+
+                <div class="resend-row">
+                    @if (resendTimer > 0) {
+                    <p class="resend-timer">Resend OTP in <span>{{resendTimer}}s</span></p>
+                    } @else {
+                    <button (click)="resendOTP()" class="resend-btn">Resend OTP</button>
+                    }
+                </div>
+            </div>
+        </div>
+        }
+    </div>
+</div>
+}

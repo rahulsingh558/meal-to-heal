@@ -4,13 +4,12 @@ import { adminGuard } from './guards/admin.guard';
 import { AddressSelectComponent } from './components/address-select/address-select.component';
 import { PaymentComponent } from './components/payment/payment.component';
 import { OrderSuccessComponent } from './components/order-success/order-success.component';
-import { Signup } from './pages/signup/signup';
 
 
 
 export const routes: Routes = [
   /* ================= PUBLIC PAGES ================= */
-  
+
   {
     path: '',
     loadComponent: () =>
@@ -29,13 +28,26 @@ export const routes: Routes = [
   {
     path: 'login',
     loadComponent: () =>
-      import('./pages/login/login').then(m => m.Login),
+      import('./pages/auth/auth.component').then(m => m.AuthComponent),
   },
-  { 
-    path: 'signup', component: Signup 
+  {
+    path: 'signup',
+    loadComponent: () =>
+      import('./pages/auth/auth.component').then(m => m.AuthComponent),
   },
-  { 
-    path: 'register', redirectTo: 'signup' 
+  {
+    path: 'register',
+    redirectTo: 'signup'
+  },
+  {
+    path: 'auth/callback',
+    loadComponent: () =>
+      import('./pages/auth-callback/auth-callback.component').then(m => m.AuthCallbackComponent),
+  },
+  {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./pages/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent),
   },
   {
     path: 'contact',
@@ -50,14 +62,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/checkout/checkout').then(m => m.Checkout),
   },
-  { 
-    path: 'address-select', component: AddressSelectComponent 
+  {
+    path: 'address-select', component: AddressSelectComponent
   },
-  { 
-    path: 'payment', component: PaymentComponent 
+  {
+    path: 'payment', component: PaymentComponent
   },
-  { 
-    path: 'order-success', component: OrderSuccessComponent 
+  {
+    path: 'order-success', component: OrderSuccessComponent
   },
   {
     path: 'orders',
@@ -86,11 +98,24 @@ export const routes: Routes = [
   },
 
   // 🔐 ADMIN AREA (WITH LAYOUT) - IMPORTANT: Admin routes come BEFORE wildcard
-  
+
   {
     path: 'admin',
     canActivate: [adminGuard],
     loadChildren: () => import('./pages/admin/admin.routes').then(m => m.adminRoutes)
+  },
+
+  /* ================= DELIVERY TRACKING ================= */
+  {
+    path: 'delivery-tracking',
+    loadComponent: () =>
+      import('./pages/delivery-tracking/delivery-tracking').then(m => m.DeliveryTrackingPage),
+  },
+  {
+    path: 'track-order/:id',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/track-order/track-order').then(m => m.TrackOrderPage),
   },
 
   /* ================= FALLBACK ================= */

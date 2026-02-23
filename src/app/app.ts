@@ -6,6 +6,7 @@ import { filter } from 'rxjs/operators';
 import { HeaderComponent } from './layout/header/header.component';
 import { FooterComponent } from './layout/footer/footer.component';
 import { ChatWidgetComponent } from './components/chat/chat.component';
+import { ToastComponent } from './components/toast/toast.component';
 
 import { provideHttpClient } from '@angular/common/http';
 
@@ -22,6 +23,7 @@ export const appConfig = {
     HeaderComponent,
     FooterComponent,
     ChatWidgetComponent,
+    ToastComponent,
   ],
   template: `
     <app-header *ngIf="showLayout"></app-header>
@@ -31,6 +33,7 @@ export const appConfig = {
     <app-footer *ngIf="showLayout"></app-footer>
     
     <app-chat-widget></app-chat-widget>
+    <app-toast></app-toast>
   `
 })
 export class App {
@@ -47,7 +50,9 @@ export class App {
       this.router.events
         .pipe(filter(event => event instanceof NavigationEnd))
         .subscribe((event: NavigationEnd) => {
-          this.showLayout = !event.urlAfterRedirects.startsWith('/admin');
+          const url = event.urlAfterRedirects;
+          const hideLayoutRoutes = ['/admin', '/login', '/signup', '/register', '/auth', '/forgot-password', '/delivery-tracking', '/track-order'];
+          this.showLayout = !hideLayoutRoutes.some(route => url.startsWith(route));
         });
     }
   }

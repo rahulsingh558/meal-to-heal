@@ -1,0 +1,145 @@
+<div class="track-page">
+
+    <!-- Navigation Header (Floating) -->
+    <div class="floating-nav">
+        <div class="nav-inner">
+            <button (click)="goBack()" class="back-btn">
+                <span>←</span> Back to Orders
+            </button>
+            <div class="order-badge">
+                Order #{{ order?.orderNumber }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="fullscreen-state">
+        <div class="state-content">
+            <div class="spinner"></div>
+            <p>Loading tracking details...</p>
+        </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error" class="fullscreen-state">
+        <div class="state-content">
+            <div class="error-icon">⚠️</div>
+            <h2>Unable to Track Order</h2>
+            <p>{{ error }}</p>
+            <button (click)="goBack()" class="error-back-btn">Go Back</button>
+        </div>
+    </div>
+
+    <!-- Full Screen Map -->
+    <div id="tracking-map-page" class="map-container"></div>
+
+    <!-- Custom Map Controls -->
+    <div *ngIf="!loading && !error" class="map-controls">
+        <button (click)="zoomIn()" class="map-ctrl-btn">+</button>
+        <button (click)="zoomOut()" class="map-ctrl-btn">−</button>
+        <button (click)="toggle3D()" class="map-ctrl-btn" [class.active]="is3D">
+            {{ is3D ? '2D' : '3D' }}
+        </button>
+    </div>
+
+    <!-- Floating Status Card -->
+    <div *ngIf="!loading && !error" class="status-card-wrapper">
+        <div class="status-card">
+
+            <!-- Card Header -->
+            <div class="card-header">
+                <h1>Delivery Status</h1>
+                <p>
+                    <span>{{ getStatusText(order?.orderStatus || '') }}</span>
+                    <span *ngIf="isLiveTracking" class="live-badge">● LIVE</span>
+                </p>
+            </div>
+
+            <!-- Card Body -->
+            <div class="card-body">
+
+                <!-- Legend -->
+                <div class="legend">
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background:#2E7D32;"></span>
+                        <span>Restaurant</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background:#4CAF50;"></span>
+                        <span>You</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background:#1565c0;"></span>
+                        <span>Driver</span>
+                    </div>
+                </div>
+
+                <!-- Distance & ETA -->
+                <div *ngIf="routeInfo && isLiveTracking" class="route-info">
+                    <div class="route-stat">
+                        <p class="route-value distance-val">{{ routeInfo.distanceText }}</p>
+                        <p class="route-label">Distance</p>
+                    </div>
+                    <div class="route-divider"></div>
+                    <div class="route-stat">
+                        <p class="route-value eta-val">{{ routeInfo.durationText }}</p>
+                        <p class="route-label">ETA</p>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="progress-section">
+                    <div class="progress-labels">
+                        <span>Restaurant</span>
+                        <span>Destination</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" [style.width.%]="deliveryProgress"></div>
+                    </div>
+                </div>
+
+                <!-- Timeline -->
+                <div class="timeline">
+                    <div class="timeline-line"></div>
+
+                    <div class="timeline-step">
+                        <div class="timeline-dot active">✓</div>
+                        <div>
+                            <h4>Order Placed</h4>
+                            <p>{{ formatDate(order?.createdAt) }}</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-step">
+                        <div class="timeline-dot"
+                            [class.active]="['confirmed','preparing','out_for_delivery','delivered'].includes(order?.orderStatus || '')">
+                            🍳</div>
+                        <div>
+                            <h4>Preparing</h4>
+                            <p>Chef is cooking</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-step">
+                        <div class="timeline-dot"
+                            [class.active]="['out_for_delivery','delivered'].includes(order?.orderStatus || '')">🛵
+                        </div>
+                        <div>
+                            <h4>Out for Delivery</h4>
+                            <p>Rider is on the way</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-step">
+                        <div class="timeline-dot" [class.active]="order?.orderStatus === 'delivered'">🏠</div>
+                        <div>
+                            <h4>Delivered</h4>
+                            <p>Enjoy your meal!</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

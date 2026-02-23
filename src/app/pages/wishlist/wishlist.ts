@@ -1,6 +1,6 @@
 import { Component, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { CartService } from '../../services/cart';
+import { CartService } from '../../services/cart.service';
 import { Router } from '@angular/router';
 
 
@@ -41,12 +41,14 @@ export class Wishlist {
     basePrice: number;
   }) {
     this.cartService.addToCart({
-      foodId: item.id,
+      menuItemId: String(item.id),
       name: item.name,
-      basePrice: item.basePrice,
-      addons: [],
+      price: item.basePrice,
       quantity: 1,
-      totalPrice: item.basePrice,
+      customizations: [],
+    }).subscribe({
+      next: (res: any) => console.log('Added to cart from wishlist', res),
+      error: (err: any) => console.error('Error adding to cart from wishlist', err)
     });
 
     this.remove(item.id);

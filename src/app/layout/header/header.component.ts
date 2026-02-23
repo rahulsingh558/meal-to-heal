@@ -2,7 +2,7 @@ import { Component, Inject, PLATFORM_ID, HostListener } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ClickOutsideDirective } from '../../directives/click-outside.directive';
-import { CartService } from '../../services/cart';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   standalone: true,
@@ -54,8 +54,8 @@ export class HeaderComponent {
     this.isBrowser = isPlatformBrowser(platformId);
 
     if (this.isBrowser) {
-      this.cartService.cartCount$.subscribe((count: number) => {
-        this.cartCount = count;
+      this.cartService.cart$.subscribe(cart => {
+        this.cartCount = cart.itemCount;
       });
     }
   }

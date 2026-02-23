@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, of } from 'rxjs';
+import { isPlatformBrowser } from '@angular/common';
 
 interface LoginResponse {
   token: string;
@@ -20,11 +21,15 @@ export class AdminAuthService {
   private readonly TOKEN_KEY = 'admin_token';
   private readonly USER_KEY = 'admin_user';
   private readonly API_URL = 'http://localhost:5001/api/auth';
+  private isBrowser: boolean;
 
   constructor(
     private http: HttpClient,
-    private router: Router
-  ) { }
+    private router: Router,
+    @Inject(PLATFORM_ID) platformId: Object
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
 
   // Login with backend
   login(email: string, password: string): Observable<LoginResponse> {
@@ -34,25 +39,30 @@ export class AdminAuthService {
     }).pipe(
       tap(response => {
         // Store token and user data
-        localStorage.setItem(this.TOKEN_KEY, response.token);
-        localStorage.setItem(this.USER_KEY, JSON.stringify(response.user));
+        if (this.isBrowser) {
+          localStorage.setItem(this.TOKEN_KEY, response.token);
+          localStorage.setItem(this.USER_KEY, JSON.stringify(response.user));
+        }
       })
     );
   }
 
   // Get stored token
   getToken(): string | null {
+    if (!this.isBrowser) return null;
     return localStorage.getItem(this.TOKEN_KEY);
   }
 
   // Get stored user
   getUser(): any {
+    if (!this.isBrowser) return null;
     const userStr = localStorage.getItem(this.USER_KEY);
     return userStr ? JSON.parse(userStr) : null;
   }
 
   // Check if admin is logged in
   isLoggedIn(): boolean {
+    if (!this.isBrowser) return false;
     const token = this.getToken();
     const user = this.getUser();
     return !!(token && user && user.role === 'admin');
@@ -60,8 +70,10 @@ export class AdminAuthService {
 
   // Logout method
   logout(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.USER_KEY);
+    if (this.isBrowser) {
+      localStorage.removeItem(this.TOKEN_KEY);
+      localStorage.removeItem(this.USER_KEY);
+    }
     this.router.navigate(['/admin/login']);
   }
 
@@ -73,7 +85,9 @@ export class AdminAuthService {
 
   // Clear all auth data
   clearAuth(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.USER_KEY);
+    if (this.isBrowser) {
+      localStorage.removeItem(this.TOKEN_KEY);
+      localStorage.removeItem(this.USER_KEY);
+    }
   }
 }
