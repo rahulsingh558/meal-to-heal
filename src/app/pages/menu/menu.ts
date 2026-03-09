@@ -1,11 +1,12 @@
-import { Component, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, Inject, PLATFORM_ID, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { CartService } from '../../services/cart.service';
+import { CartService, CartItem } from '../../services/cart.service';
 import { FoodApiService, ApiFood } from '../../services/food-api.service';
+import { Subscription } from 'rxjs';
 import { Food } from '../../models/food';
 import { Addon } from '../../models/addon';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faCartPlus } from '@fortawesome/free-solid-svg-icons';
+import { faCartPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { ChatWidgetComponent } from '../../components/chat/chat.component';
 
 /* =========================
@@ -29,9 +30,10 @@ interface MenuFood extends Food {
   imports: [CommonModule, FontAwesomeModule],
   templateUrl: './menu.html',
 })
-export class Menu {
+export class Menu implements OnInit, OnDestroy {
   isBrowser = false;
   faCartPlus = faCartPlus;
+  faTrash = faTrash;
 
   selectedType: 'all' | FoodType = 'all';
   foods: MenuFood[] = [];
@@ -46,9 +48,11 @@ export class Menu {
   modalTotal = 0;
 
   /* =========================
-     WISHLIST
+     WISHLIST & CART STATE
   ========================== */
   wishlist: { id: any; name: string; basePrice: number }[] = [];
+  cartItems: CartItem[] = [];
+  private cartSub!: Subscription;
 
   /* =========================
      ADDON IMAGES
@@ -73,13 +77,29 @@ export class Menu {
   constructor(
     private cartService: CartService,
     private foodApi: FoodApiService,
-    @Inject(PLATFORM_ID) platformId: Object
+    @Inject(PLATFORM_ID) platformId: Object,
+    private cdr: ChangeDetectorRef
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
 
     if (this.isBrowser) {
       this.wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
       this.loadMenu();
+    }
+  }
+
+  ngOnInit() {
+    this.cartSub = this.cartService.cart$.subscribe(cart => {
+      this.cartItems = cart.items || [];
+      if (this.isBrowser) {
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.cartSub) {
+      this.cartSub.unsubscribe();
     }
   }
 
@@ -90,9 +110,11 @@ export class Menu {
     this.foodApi.getAllFoods().subscribe({
       next: foods => {
         this.foods = foods.map(f => this.mapApiFoodToMenu(f));
+        this.cdr.detectChanges();
       },
       error: () => {
         this.foods = [];
+        this.cdr.detectChanges();
       }
     });
   }
@@ -189,6 +211,23 @@ export class Menu {
 
   isWishlisted(id: any) {
     return this.wishlist.some(w => w.id === id);
+  }
+
+  /* =========================
+     CART HELPERS
+  ========================== */
+  isFoodInCart(foodId: any): boolean {
+    return this.cartItems.some(item => item.menuItemId === String(foodId));
+  }
+
+  removeFromCart(foodId: any, event: Event) {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.cartService.removeItem(String(foodId)).subscribe({
+      next: (res: any) => console.log('Removed from cart', res),
+      error: (err: any) => console.error('Error removing from cart', err)
+    });
   }
 
   /* =========================
