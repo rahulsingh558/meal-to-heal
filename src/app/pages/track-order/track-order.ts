@@ -100,7 +100,7 @@ export class TrackOrderPage implements OnInit, OnDestroy {
             await this.mapplsService.createMap('tracking-map-page', centerCoords, 13);
             this.mapInitialized = true;
 
-            this.mapplsService.addRestaurantMarker(restaurantCoords, 'Meal to Heal');
+            this.mapplsService.addRestaurantMarker(restaurantCoords, 'meals4heal');
             this.mapplsService.addDeliveryAddressMarker(deliveryCoords, 'Delivery Address');
 
             this.mapplsService.fitBounds([restaurantCoords, deliveryCoords]);

@@ -120,14 +120,14 @@ export class Home implements AfterViewInit {
     {
       name: 'Priya Sharma',
       role: 'Fitness Trainer',
-      text: 'As a fitness trainer, I recommend Meal to Heal to all my clients. The protein bowls are perfectly balanced and help in muscle recovery.',
+      text: 'As a fitness trainer, I recommend meals4heal to all my clients. The protein bowls are perfectly balanced and help in muscle recovery.',
       rating: 5,
       avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop&crop=face'
     },
     {
       name: 'Rohan Mehta',
       role: 'IT Professional',
-      text: 'Working long hours made healthy eating tough. Now with Meal to Heal, I get nutritious meals delivered. Lost 5kg in 2 months!',
+      text: 'Working long hours made healthy eating tough. Now with meals4heal, I get nutritious meals delivered. Lost 5kg in 2 months!',
       rating: 5,
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face'
     },

@@ -1,5 +1,5 @@
 {
-  "name": "meal-to-heal",
+  "name": "meals4heal",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -7,7 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:meal-to-heal": "node dist/meal-to-heal/server/server.mjs"
+    "serve:ssr:meals4heal": "node dist/meals4heal/server/server.mjs"
   },
   "prettier": {
     "printWidth": 100,

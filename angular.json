@@ -7,7 +7,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "meal-to-heal": {
+    "meals4heal": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -63,10 +63,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "meal-to-heal:build:production"
+              "buildTarget": "meals4heal:build:production"
             },
             "development": {
-              "buildTarget": "meal-to-heal:build:development"
+              "buildTarget": "meals4heal:build:development"
             }
           },
           "defaultConfiguration": "development"
