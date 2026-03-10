@@ -159,7 +159,7 @@ export class Menu implements OnInit, OnDestroy {
       basePrice: food.basePrice,
       category: food.category as 'sprouts' | 'airfried',
       type: food.type,
-      image: `http://localhost:5001${food.image}`,
+      image: `https://meal-to-heal-backend.onrender.com${food.image}`,
       addons: [...freeAddons, ...premiumAddons],
       freeAddonIds: freeAddons.map(a => a.id),
     };

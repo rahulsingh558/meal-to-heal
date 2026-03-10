@@ -20,7 +20,7 @@ interface LoginResponse {
 export class AdminAuthService {
   private readonly TOKEN_KEY = 'admin_token';
   private readonly USER_KEY = 'admin_user';
-  private readonly API_URL = 'http://localhost:5001/api/auth';
+  private readonly API_URL = 'https://meal-to-heal-backend.onrender.com/api/auth';
   private isBrowser: boolean;
 
   constructor(

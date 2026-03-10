@@ -95,7 +95,7 @@ export class AdminMenuComponent {
       type: item.type,
       category: item.category,
       image: null,
-      imagePreview: `http://localhost:5001${item.image}`,
+      imagePreview: `https://meal-to-heal-backend.onrender.com${item.image}`,
       defaultAddons: [...item.defaultAddons],
       extraAddons: [...item.extraAddons],
     };
