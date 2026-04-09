@@ -1,7 +1,7 @@
 export const environment = {
     production: false,
-    backendUrl: 'https://meal-to-heal-backend.onrender.com',
-    apiUrl: 'https://meal-to-heal-backend.onrender.com/api',
+    backendUrl: 'http://localhost:5001',
+    apiUrl: 'http://localhost:5001/api',
     mappls: {
         apiKey: '771985f5b0af98e110a1b13a73e27767',
         restaurantELoc: 'ta34s7',
